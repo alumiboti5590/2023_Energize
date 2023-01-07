@@ -12,4 +12,11 @@ public class Tuple<X, Y> {
     this.first = x;
     this.second = y;
   }
+
+  /**
+   * Test equality between two Tuple objects
+   */
+  public boolean equals(Tuple<X, Y> other) {
+    return this.first.equals(other.first) && this.second.equals(other.second);
+  }
 }
