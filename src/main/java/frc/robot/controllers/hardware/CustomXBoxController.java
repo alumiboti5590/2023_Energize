@@ -1,13 +1,12 @@
 package frc.robot.controllers.hardware;
 
 import com.alumiboti5590.util.ControllerUtility;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * An extension of the XboxController class that comes from WPI, but it
- * includes some extra buttons and axes as Triggers and helpful utilities
+ * An extension of the XboxController class that comes from WPI, but it includes some extra buttons
+ * and axes as Triggers and helpful utilities
  */
 public class CustomXBoxController extends XboxController {
 

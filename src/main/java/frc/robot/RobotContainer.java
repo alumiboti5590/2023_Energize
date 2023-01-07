@@ -7,19 +7,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
 import frc.robot.subsystems.Drivetrain;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -51,38 +47,31 @@ public class RobotContainer {
     configureAutoCommands();
   }
 
-  /**
-   * Initialize subsystems across the robot
-   */
+  /** Initialize subsystems across the robot */
   private void configureSubsystems() {
     this.drivetrain = new Drivetrain();
   }
 
-  /**
-   * Configure trigger & axis bindings between the robot and the controllers
-   */
+  /** Configure trigger & axis bindings between the robot and the controllers */
   private void configureBindings() {
     driverController = new XboxDriverController(0, Constants.XBOX_CONTROLLER_DEADBAND);
   }
 
   /**
-   * Configure the default command(s) for the robot.
-   * At the present time, the only default command is for the drivetrain to
-   * continuously be allowing the robot to move around the field.
+   * Configure the default command(s) for the robot. At the present time, the only default command
+   * is for the drivetrain to continuously be allowing the robot to move around the field.
    */
   private void configureDefaultCommands() {
-    RunCommand drivetrainCommand = new RunCommand(
-        () -> this.drivetrain.controllerDrive(driverController), this.drivetrain);
+    RunCommand drivetrainCommand =
+        new RunCommand(() -> this.drivetrain.controllerDrive(driverController), this.drivetrain);
 
     this.drivetrain.setDefaultCommand(drivetrainCommand);
   }
 
   /**
-   * Configure a SendableChooser with a list of potential autonomous actions we
-   * want to perform
-   * One of these options will be selected by the drive team before initiating
-   * autonomous, where
-   * the robot will then select & follow through with it.
+   * Configure a SendableChooser with a list of potential autonomous actions we want to perform One
+   * of these options will be selected by the drive team before initiating autonomous, where the
+   * robot will then select & follow through with it.
    */
   private void configureAutoCommands() {
     autoChooser = new SendableChooser<>();

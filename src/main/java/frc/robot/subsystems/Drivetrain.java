@@ -9,10 +9,9 @@ import com.alumiboti5590.util.filters.IInputFilter;
 import com.alumiboti5590.util.filters.PolynomialInputFilter;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -56,7 +55,8 @@ public class Drivetrain extends SubsystemBase {
     leftLeader = new CANSparkMax(Constants.Drivetrain.LEFT_LEADER_CAN_ID, MotorType.kBrushless);
     leftFollower = new CANSparkMax(Constants.Drivetrain.LEFT_FOLLOWER_CAN_ID, MotorType.kBrushless);
     rightLeader = new CANSparkMax(Constants.Drivetrain.RIGHT_LEADER_CAN_ID, MotorType.kBrushless);
-    rightFollower = new CANSparkMax(Constants.Drivetrain.RIGHT_FOLLOWER_CAN_ID, MotorType.kBrushless);
+    rightFollower =
+        new CANSparkMax(Constants.Drivetrain.RIGHT_FOLLOWER_CAN_ID, MotorType.kBrushless);
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
@@ -69,14 +69,20 @@ public class Drivetrain extends SubsystemBase {
     rightEncoder = rightLeader.getEncoder();
 
     leftEncoder.setPositionConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
+        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
+            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
     rightEncoder.setPositionConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
+        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
+            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
 
-    leftEncoder.setVelocityConversionFactor(Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-        * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION / 60.0);
-    rightEncoder.setVelocityConversionFactor(Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-        * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION / 60.0);
+    leftEncoder.setVelocityConversionFactor(
+        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
+            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION
+            / 60.0);
+    rightEncoder.setVelocityConversionFactor(
+        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
+            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION
+            / 60.0);
 
     leftLeader.setSmartCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
     rightLeader.setSmartCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
@@ -107,7 +113,9 @@ public class Drivetrain extends SubsystemBase {
     resetOdometry();
     navX.reset();
 
-    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(Constants.Drivetrain.TRACKWIDTH_INCHES));
+    kinematics =
+        new DifferentialDriveKinematics(
+            Units.inchesToMeters(Constants.Drivetrain.TRACKWIDTH_INCHES));
     // TODO: Use a starting point to determine placement on the field for the start
     odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeadingDegrees()), 0, 0);
 
@@ -166,7 +174,8 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetPoseMeters(Rotation2d newRotation, Pose2d newPose) {
     resetOdometry();
-    odometry.resetPosition(newRotation, this.leftEncoder.getPosition(), this.rightEncoder.getPosition(), newPose);
+    odometry.resetPosition(
+        newRotation, this.leftEncoder.getPosition(), this.rightEncoder.getPosition(), newPose);
   }
 
   public void resetPoseMeters() {
@@ -179,13 +188,17 @@ public class Drivetrain extends SubsystemBase {
     Tuple<Double, Double> inputs;
 
     inputs = controller.getArcadeOrCurvatureDriveValues();
-    double multiplier = controller.getTurboButton().getAsBoolean() ? 1.0
-        : Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
+    double multiplier =
+        controller.getTurboButton().getAsBoolean()
+            ? 1.0
+            : Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
 
     if (type == DriveType.ARCADE) {
       this.arcadeDrive(inputs.first * multiplier, inputs.second * multiplier);
     } else if (type == DriveType.CURVATURE) {
-      this.curvatureDrive(inputs.first * multiplier, inputs.second * multiplier,
+      this.curvatureDrive(
+          inputs.first * multiplier,
+          inputs.second * multiplier,
           controller.getCurvatureDriveQuickTurn());
     }
   }
@@ -194,7 +207,8 @@ public class Drivetrain extends SubsystemBase {
     arcadeDrive(speed, rotation, false, false);
   }
 
-  public void arcadeDrive(double speed, double rotation, boolean skipSpeedFilter, boolean skipRotationFilter) {
+  public void arcadeDrive(
+      double speed, double rotation, boolean skipSpeedFilter, boolean skipRotationFilter) {
     if (!skipSpeedFilter) {
       speed = this.inputFilter1.get(speed);
     }
@@ -210,7 +224,11 @@ public class Drivetrain extends SubsystemBase {
     curvatureDrive(speed, rotation, isQuickTurn, false, false);
   }
 
-  public void curvatureDrive(double speed, double rotation, boolean isQuickTurn, boolean skipSpeedFilter,
+  public void curvatureDrive(
+      double speed,
+      double rotation,
+      boolean isQuickTurn,
+      boolean skipSpeedFilter,
       boolean skipRotationFilter) {
     if (!skipSpeedFilter) {
       speed = this.inputFilter1.get(speed);
@@ -227,7 +245,8 @@ public class Drivetrain extends SubsystemBase {
     tankDrive(leftSpeed, rightSpeed, false, false);
   }
 
-  public void tankDrive(double leftSpeed, double rightSpeed, boolean skipLeftFilter, boolean skipRightFilter) {
+  public void tankDrive(
+      double leftSpeed, double rightSpeed, boolean skipLeftFilter, boolean skipRightFilter) {
     if (!skipLeftFilter) {
       leftSpeed = this.inputFilter1.get(leftSpeed);
     }
@@ -241,7 +260,9 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    odometry.update(Rotation2d.fromDegrees(getHeadingDegrees()), Units.feetToMeters(getLeftDistanceFeet()),
+    odometry.update(
+        Rotation2d.fromDegrees(getHeadingDegrees()),
+        Units.feetToMeters(getLeftDistanceFeet()),
         Units.feetToMeters(getRightDistanceFeet()));
     field2d.setRobotPose(getPoseMeters());
 

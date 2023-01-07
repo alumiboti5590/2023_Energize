@@ -1,8 +1,8 @@
+package com.alumiboti5590.util;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.alumiboti5590.util.ControllerUtility;
 import org.junit.jupiter.api.Test;
-
 
 public class ControllerUtilityTest {
 

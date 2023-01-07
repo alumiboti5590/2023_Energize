@@ -1,10 +1,11 @@
+package com.alumiboti5590.util.filters;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.alumiboti5590.util.filters.LinearInputFilter;
 import org.junit.jupiter.api.Test;
 
 public class LinearInputFilterTest {
-  
+
   @Test
   void filtersPositiveNumbers() {
     double value = .2;

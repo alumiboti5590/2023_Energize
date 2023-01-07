@@ -1,10 +1,11 @@
+package com.alumiboti5590.util.filters;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.alumiboti5590.util.filters.PolynomialInputFilter;
 import org.junit.jupiter.api.Test;
 
 public class PolynomialInputFilterTest {
-  
+
   @Test
   void filtersPositiveNumbers() {
     double value = .2;
@@ -13,7 +14,11 @@ public class PolynomialInputFilterTest {
 
     PolynomialInputFilter filter = new PolynomialInputFilter(scaleFactor);
     double actualFilterValue = filter.get(value);
-    assertEquals(expectedFilterValue, actualFilterValue, .001, String.format("%2f %2f", expectedFilterValue, actualFilterValue));
+    assertEquals(
+        expectedFilterValue,
+        actualFilterValue,
+        .001,
+        String.format("%2f %2f", expectedFilterValue, actualFilterValue));
   }
 
   @Test
@@ -24,6 +29,10 @@ public class PolynomialInputFilterTest {
 
     PolynomialInputFilter filter = new PolynomialInputFilter(scaleFactor);
     double actualFilterValue = filter.get(value);
-    assertEquals(expectedFilterValue, actualFilterValue, .001, String.format("%2f %2f", expectedFilterValue, actualFilterValue));
+    assertEquals(
+        expectedFilterValue,
+        actualFilterValue,
+        .001,
+        String.format("%2f %2f", expectedFilterValue, actualFilterValue));
   }
 }

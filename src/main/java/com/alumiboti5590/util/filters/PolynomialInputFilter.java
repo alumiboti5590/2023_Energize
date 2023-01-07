@@ -26,5 +26,4 @@ public class PolynomialInputFilter implements IInputFilter {
     }
     return result;
   }
-  
 }
