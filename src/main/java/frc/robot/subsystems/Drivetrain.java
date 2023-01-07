@@ -108,7 +108,8 @@ public class Drivetrain extends SubsystemBase {
     navX.reset();
 
     kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(Constants.Drivetrain.TRACKWIDTH_INCHES));
-    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeadingDegrees()), new Pose2d());
+    // TODO: Use a starting point to determine placement on the field for the start
+    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeadingDegrees()), 0, 0);
 
     // Set up SmartDashboard Things
     SmartDashboard.putData("Robot Position", field2d);
@@ -165,7 +166,7 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetPoseMeters(Rotation2d newRotation, Pose2d newPose) {
     resetOdometry();
-    odometry.resetPosition(newPose, newRotation);
+    odometry.resetPosition(newRotation, this.leftEncoder.getPosition(), this.rightEncoder.getPosition(), newPose);
   }
 
   public void resetPoseMeters() {
