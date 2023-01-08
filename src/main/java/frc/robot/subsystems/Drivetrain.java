@@ -90,7 +90,8 @@ public class Drivetrain extends SubsystemBase {
     // Set up AHRS
     navX = new AHRS(SPI.Port.kMXP);
 
-    // TODO set current limit
+    // set current limit
+    setCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
 
     // Set motor inversions if necessary
     rightLeader.setInverted(true);
@@ -133,6 +134,13 @@ public class Drivetrain extends SubsystemBase {
     this.leftLeader.setOpenLoopRampRate(rate);
     this.rightLeader.setClosedLoopRampRate(rate);
     this.rightLeader.setOpenLoopRampRate(rate);
+  }
+
+  public void setCurrentLimit(int currentInAmps) {
+    leftLeader.setSmartCurrentLimit(currentInAmps);
+    rightLeader.setSmartCurrentLimit(currentInAmps);
+    leftFollower.setSmartCurrentLimit(currentInAmps);
+    rightFollower.setSmartCurrentLimit(currentInAmps);
   }
 
   private void resetEncoders() {
