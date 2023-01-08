@@ -31,6 +31,10 @@ public final class Constants {
     public static final double DRIVETRAIN_GEAR_REDUCTION = 1.0 / 10.71;
     public static final double TRACKWIDTH_INCHES = 23.06;
 
+    public static double encoderConversionFactor() {
+      return DISTANCE_PER_WHEEL_REVOLUTION_FEET * DRIVETRAIN_GEAR_REDUCTION;
+    }
+
     // Used to control the scaled maximum speed that the robot should have
     // under regular circumstances. This can be overriden to full by using
     // the "Turbo" button

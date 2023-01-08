@@ -12,14 +12,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,8 +23,9 @@ import frc.robot.controllers.IDriverController;
 public class Drivetrain extends SubsystemBase {
 
   public enum DriveType {
+    ARCADE,
     CURVATURE,
-    ARCADE
+    TANK_DRIVE
   }
 
   private SendableChooser<DriveType> driveTypeChooser;
@@ -42,12 +37,7 @@ public class Drivetrain extends SubsystemBase {
   private RelativeEncoder leftEncoder, rightEncoder;
   private DifferentialDrive diffDrive;
 
-  // Odometry and kinematics
   private AHRS navX;
-  private DifferentialDriveOdometry odometry;
-  private DifferentialDriveKinematics kinematics;
-
-  private final Field2d field2d = new Field2d();
 
   /** Creates a new Drivetrain. */
   public Drivetrain() {
@@ -65,38 +55,26 @@ public class Drivetrain extends SubsystemBase {
     leftLeader.setIdleMode(IdleMode.kCoast);
     rightLeader.setIdleMode(IdleMode.kCoast);
 
+    // Configure Encoder settings to have proper ratios and distance controls
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
-    leftEncoder.setPositionConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
-    rightEncoder.setPositionConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION);
-
-    leftEncoder.setVelocityConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION
-            / 60.0);
-    rightEncoder.setVelocityConversionFactor(
-        Constants.Drivetrain.DISTANCE_PER_WHEEL_REVOLUTION_FEET
-            * Constants.Drivetrain.DRIVETRAIN_GEAR_REDUCTION
-            / 60.0);
-
-    leftLeader.setSmartCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
-    rightLeader.setSmartCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
+    double conversionFactor = Constants.Drivetrain.encoderConversionFactor();
+    leftEncoder.setPositionConversionFactor(conversionFactor);
+    rightEncoder.setPositionConversionFactor(conversionFactor);
+    leftEncoder.setVelocityConversionFactor(conversionFactor / 60.0);
+    rightEncoder.setVelocityConversionFactor(conversionFactor / 60.0);
 
     // Set up AHRS
     navX = new AHRS(SPI.Port.kMXP);
 
-    // set current limit
+    // set current limit to avoid brownouts and spikes
     setCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
 
     // Set motor inversions if necessary
     rightLeader.setInverted(true);
 
-    // Set ramp rate if necessary
+    // Set ramp rate to make smoother acceleration and avoid electrical spikes
     this.setRampRate(Constants.Drivetrain.RAMP_RATE_SECONDS);
 
     // set up DiffDrive
@@ -114,18 +92,11 @@ public class Drivetrain extends SubsystemBase {
     resetOdometry();
     navX.reset();
 
-    kinematics =
-        new DifferentialDriveKinematics(
-            Units.inchesToMeters(Constants.Drivetrain.TRACKWIDTH_INCHES));
-    // TODO: Use a starting point to determine placement on the field for the start
-    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeadingDegrees()), 0, 0);
-
-    // Set up SmartDashboard Things
-    SmartDashboard.putData("Robot Position", field2d);
-
+    // Set up SmartDashboard drive type changes
     driveTypeChooser = new SendableChooser<>();
     driveTypeChooser.setDefaultOption("Curvature", DriveType.CURVATURE);
     driveTypeChooser.addOption("Arcade", DriveType.ARCADE);
+    driveTypeChooser.addOption("Tank Drive", DriveType.TANK_DRIVE);
     SmartDashboard.putData("Drive Type", driveTypeChooser);
   }
 
@@ -176,30 +147,16 @@ public class Drivetrain extends SubsystemBase {
     navX.reset();
   }
 
-  public Pose2d getPoseMeters() {
-    return odometry.getPoseMeters();
-  }
-
-  public void resetPoseMeters(Rotation2d newRotation, Pose2d newPose) {
-    resetOdometry();
-    odometry.resetPosition(
-        newRotation, this.leftEncoder.getPosition(), this.rightEncoder.getPosition(), newPose);
-  }
-
-  public void resetPoseMeters() {
-    resetPoseMeters(Rotation2d.fromDegrees(0.0), new Pose2d());
-  }
-
   // Drive methods
   public void controllerDrive(IDriverController controller) {
     DriveType type = driveTypeChooser.getSelected();
     Tuple<Double, Double> inputs;
 
     inputs = controller.getArcadeOrCurvatureDriveValues();
-    double multiplier =
-        controller.getTurboButton().getAsBoolean()
-            ? 1.0
-            : Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
+    double multiplier = Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
+    if (controller.getTurboButton().getAsBoolean()) {
+      multiplier = 1.0;
+    }
 
     if (type == DriveType.ARCADE) {
       this.arcadeDrive(inputs.first * multiplier, inputs.second * multiplier);
@@ -268,12 +225,6 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    odometry.update(
-        Rotation2d.fromDegrees(getHeadingDegrees()),
-        Units.feetToMeters(getLeftDistanceFeet()),
-        Units.feetToMeters(getRightDistanceFeet()));
-    field2d.setRobotPose(getPoseMeters());
-
     SmartDashboard.putNumber("Left Distance Feet", getLeftDistanceFeet());
     SmartDashboard.putNumber("Right Distance Feet", getRightDistanceFeet());
     SmartDashboard.putNumber("Heading", getHeadingDegrees());
