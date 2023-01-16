@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.alumiboti5590.util.DistanceUtility;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -27,12 +29,15 @@ public final class Constants {
     public static final int CURRENT_LIMIT = 50;
 
     // Hardware/Mechanical Constants
-    public static final double DISTANCE_PER_WHEEL_REVOLUTION_FEET = Math.PI * 0.5;
-    public static final double DRIVETRAIN_GEAR_REDUCTION = 1.0 / 10.71;
-    public static final double TRACKWIDTH_INCHES = 23.06;
+    public static final double GEAR_BOX_RATIO = 7.31; //  1.45; 10.71; 12.75;
+    public static final double WHEEL_DIAMETER_INCHES = 6;
+    public static final double ENCODER_COUNTS_PER_ROTATION = 96;
 
-    public static double encoderConversionFactor() {
-      return DISTANCE_PER_WHEEL_REVOLUTION_FEET * DRIVETRAIN_GEAR_REDUCTION;
+    public static double metersPerEncoderPulse() {
+      double wheelsDiameterAsCm = DistanceUtility.inchesToCentimeters(WHEEL_DIAMETER_INCHES);
+      double beforeGearBoxReduction = 100 / (wheelsDiameterAsCm * Math.PI); // 100 == 100cm to 1 m
+      double afterGearBoxReduction = beforeGearBoxReduction / GEAR_BOX_RATIO;
+      return afterGearBoxReduction;
     }
 
     // Used to control the scaled maximum speed that the robot should have

@@ -7,11 +7,10 @@ package frc.robot.subsystems;
 import com.alumiboti5590.util.Tuple;
 import com.alumiboti5590.util.filters.IInputFilter;
 import com.alumiboti5590.util.filters.PolynomialInputFilter;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,8 +32,8 @@ public class Drivetrain extends SubsystemBase {
   private IInputFilter inputFilter1, inputFilter2;
 
   // Basic Drivetrain things
-  private CANSparkMax leftLeader, leftFollower, rightLeader, rightFollower;
-  private RelativeEncoder leftEncoder, rightEncoder;
+  private WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+  private Encoder leftEncoder, rightEncoder;
   private DifferentialDrive diffDrive;
 
   private AHRS navX;
@@ -42,28 +41,23 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   public Drivetrain() {
     // Set up the motor controllers
-    leftLeader = new CANSparkMax(Constants.Drivetrain.LEFT_LEADER_CAN_ID, MotorType.kBrushless);
-    leftFollower = new CANSparkMax(Constants.Drivetrain.LEFT_FOLLOWER_CAN_ID, MotorType.kBrushless);
-    rightLeader = new CANSparkMax(Constants.Drivetrain.RIGHT_LEADER_CAN_ID, MotorType.kBrushless);
-    rightFollower =
-        new CANSparkMax(Constants.Drivetrain.RIGHT_FOLLOWER_CAN_ID, MotorType.kBrushless);
+    leftLeader = new WPI_TalonSRX(Constants.Drivetrain.LEFT_LEADER_CAN_ID);
+    leftFollower = new WPI_TalonSRX(Constants.Drivetrain.LEFT_FOLLOWER_CAN_ID);
+    rightLeader = new WPI_TalonSRX(Constants.Drivetrain.RIGHT_LEADER_CAN_ID);
+    rightFollower = new WPI_TalonSRX(Constants.Drivetrain.RIGHT_FOLLOWER_CAN_ID);
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
 
     // Set up coast mode
-    leftLeader.setIdleMode(IdleMode.kCoast);
-    rightLeader.setIdleMode(IdleMode.kCoast);
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
 
     // Configure Encoder settings to have proper ratios and distance controls
-    leftEncoder = leftLeader.getEncoder();
-    rightEncoder = rightLeader.getEncoder();
+    leftEncoder = new Encoder(0, 1);
+    rightEncoder = new Encoder(2, 3);
 
-    double conversionFactor = Constants.Drivetrain.encoderConversionFactor();
-    leftEncoder.setPositionConversionFactor(conversionFactor);
-    rightEncoder.setPositionConversionFactor(conversionFactor);
-    leftEncoder.setVelocityConversionFactor(conversionFactor / 60.0);
-    rightEncoder.setVelocityConversionFactor(conversionFactor / 60.0);
+    setEncoderDistancePerPulse(Constants.Drivetrain.metersPerEncoderPulse());
 
     // Set up AHRS
     navX = new AHRS(SPI.Port.kMXP);
@@ -101,38 +95,43 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setRampRate(double rate) {
-    this.leftLeader.setClosedLoopRampRate(rate);
-    this.leftLeader.setOpenLoopRampRate(rate);
-    this.rightLeader.setClosedLoopRampRate(rate);
-    this.rightLeader.setOpenLoopRampRate(rate);
+    this.leftLeader.configOpenloopRamp(rate);
+    this.leftLeader.configOpenloopRamp(rate);
+    this.rightLeader.configOpenloopRamp(rate);
+    this.rightLeader.configOpenloopRamp(rate);
   }
 
   public void setCurrentLimit(int currentInAmps) {
-    leftLeader.setSmartCurrentLimit(currentInAmps);
-    rightLeader.setSmartCurrentLimit(currentInAmps);
-    leftFollower.setSmartCurrentLimit(currentInAmps);
-    rightFollower.setSmartCurrentLimit(currentInAmps);
+    leftLeader.configPeakCurrentLimit(currentInAmps);
+    rightLeader.configPeakCurrentLimit(currentInAmps);
+    leftFollower.configPeakCurrentLimit(currentInAmps);
+    rightFollower.configPeakCurrentLimit(currentInAmps);
+  }
+
+  public void setEncoderDistancePerPulse(double distancePerPulse) {
+    leftEncoder.setDistancePerPulse(distancePerPulse);
+    rightEncoder.setDistancePerPulse(distancePerPulse);
   }
 
   private void resetEncoders() {
-    this.leftEncoder.setPosition(0.0);
-    this.rightEncoder.setPosition(0.0);
+    this.leftEncoder.reset();
+    this.rightEncoder.reset();
   }
 
   public double getLeftDistanceFeet() {
-    return this.leftEncoder.getPosition();
+    return this.leftEncoder.getDistance();
   }
 
   public double getRightDistanceFeet() {
-    return this.rightEncoder.getPosition();
+    return this.rightEncoder.getDistance();
   }
 
   public double getLeftVelocityFPS() {
-    return this.leftEncoder.getVelocity();
+    return this.leftEncoder.getRate();
   }
 
   public double getRightVelocityFPS() {
-    return this.rightEncoder.getVelocity();
+    return this.rightEncoder.getRate();
   }
 
   public void resetOdometry() {
@@ -225,8 +224,8 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Left Distance Feet", getLeftDistanceFeet());
-    SmartDashboard.putNumber("Right Distance Feet", getRightDistanceFeet());
+    SmartDashboard.putNumber("Left Distance Meters", getLeftDistanceFeet());
+    SmartDashboard.putNumber("Right Distance Meters", getRightDistanceFeet());
     SmartDashboard.putNumber("Heading", getHeadingDegrees());
   }
 }
