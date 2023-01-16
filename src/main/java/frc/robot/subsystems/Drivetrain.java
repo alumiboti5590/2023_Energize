@@ -66,7 +66,8 @@ public class Drivetrain extends SubsystemBase {
     setCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
 
     // Set motor inversions if necessary
-    rightLeader.setInverted(true);
+    leftLeader.setInverted(false);
+    rightLeader.setInverted(false);
 
     // Set ramp rate to make smoother acceleration and avoid electrical spikes
     this.setRampRate(Constants.Drivetrain.RAMP_RATE_SECONDS);
