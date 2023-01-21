@@ -41,10 +41,10 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   public Drivetrain() {
     // Set up the motor controllers
-    leftLeader = new WPI_TalonSRX(Constants.Drivetrain.LEFT_LEADER_CAN_ID);
-    leftFollower = new WPI_TalonSRX(Constants.Drivetrain.LEFT_FOLLOWER_CAN_ID);
-    rightLeader = new WPI_TalonSRX(Constants.Drivetrain.RIGHT_LEADER_CAN_ID);
-    rightFollower = new WPI_TalonSRX(Constants.Drivetrain.RIGHT_FOLLOWER_CAN_ID);
+    leftLeader = new WPI_TalonSRX(Constants.Drivetrain.Motors.LEFT_LEADER_ID);
+    leftFollower = new WPI_TalonSRX(Constants.Drivetrain.Motors.LEFT_FOLLOWER_ID);
+    rightLeader = new WPI_TalonSRX(Constants.Drivetrain.Motors.RIGHT_LEADER_ID);
+    rightFollower = new WPI_TalonSRX(Constants.Drivetrain.Motors.RIGHT_FOLLOWER_ID);
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
@@ -54,8 +54,8 @@ public class Drivetrain extends SubsystemBase {
     rightLeader.setNeutralMode(NeutralMode.Coast);
 
     // Configure Encoder settings to have proper ratios and distance controls
-    leftEncoder = new Encoder(5, 6);
-    rightEncoder = new Encoder(7, 8);
+    leftEncoder = new Encoder(Constants.Drivetrain.Encoders.LEFT_CHANNEL_A, Constants.Drivetrain.Encoders.LEFT_CHANNEL_B);
+    rightEncoder = new Encoder(Constants.Drivetrain.Encoders.RIGHT_CHANNEL_A, Constants.Drivetrain.Encoders.RIGHT_CHANNEL_B);
 
     setEncoderDistancePerPulse(Constants.Drivetrain.metersPerEncoderPulse());
 
@@ -178,9 +178,7 @@ public class Drivetrain extends SubsystemBase {
       this.arcadeDrive(inputs.first * multiplier, steeringInput);
     } else if (type == DriveType.CURVATURE) {
       this.curvatureDrive(
-          inputs.first * multiplier,
-          steeringInput,
-          controller.getCurvatureDriveQuickTurn());
+          inputs.first * multiplier, steeringInput, controller.getCurvatureDriveQuickTurn());
     } else if (type == DriveType.TANK_DRIVE) {
       this.tankDrive(inputs.first, inputs.second);
     }

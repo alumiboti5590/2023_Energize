@@ -49,11 +49,22 @@ public final class Constants {
     // the "Turbo" button is activated.
     public static final double TURBO_DRIVE_SPEED_SCALAR = 1.0;
 
-    public static final int LEFT_LEADER_CAN_ID = 1;
-    public static final int LEFT_FOLLOWER_CAN_ID = 5;
+    // Motor CAN ports
+    public static final class Motors {
+      public static final int LEFT_LEADER_ID = 1;
+      public static final int LEFT_FOLLOWER_ID = 5;
 
-    public static final int RIGHT_LEADER_CAN_ID = 12;
-    public static final int RIGHT_FOLLOWER_CAN_ID = 15;
+      public static final int RIGHT_LEADER_ID = 12;
+      public static final int RIGHT_FOLLOWER_ID = 15;
+    }
+
+    // Encoder DIO ports
+    public static final class Encoders {
+      public static final int LEFT_CHANNEL_A = 5;
+      public static final int LEFT_CHANNEL_B = 6;
+      public static final int RIGHT_CHANNEL_A = 7;
+      public static final int RIGHT_CHANNEL_B = 8;
+    }
 
     public static final boolean INVERT_STEERING = true;
 
