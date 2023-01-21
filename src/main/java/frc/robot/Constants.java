@@ -54,5 +54,13 @@ public final class Constants {
 
     public static final int RIGHT_LEADER_CAN_ID = 12;
     public static final int RIGHT_FOLLOWER_CAN_ID = 15;
+
+    public static final boolean INVERT_STEERING = true;
+
+    public static final boolean LEFT_LEADER_INVERT = false;
+    public static final boolean RIGHT_LEADER_INVERT = true;
+
+    public static final boolean LEFT_FOLLOWER_INVERT = false;
+    public static final boolean RIGHT_FOLLOWER_INVERT = true;
   }
 }

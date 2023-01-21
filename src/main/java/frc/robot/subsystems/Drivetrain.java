@@ -54,8 +54,8 @@ public class Drivetrain extends SubsystemBase {
     rightLeader.setNeutralMode(NeutralMode.Coast);
 
     // Configure Encoder settings to have proper ratios and distance controls
-    leftEncoder = new Encoder(0, 1);
-    rightEncoder = new Encoder(2, 3);
+    leftEncoder = new Encoder(5, 6);
+    rightEncoder = new Encoder(7, 8);
 
     setEncoderDistancePerPulse(Constants.Drivetrain.metersPerEncoderPulse());
 
@@ -66,8 +66,11 @@ public class Drivetrain extends SubsystemBase {
     setCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
 
     // Set motor inversions if necessary
-    leftLeader.setInverted(false);
-    rightLeader.setInverted(false);
+    leftLeader.setInverted(Constants.Drivetrain.LEFT_LEADER_INVERT);
+    rightLeader.setInverted(Constants.Drivetrain.RIGHT_LEADER_INVERT);
+
+    leftFollower.setInverted(Constants.Drivetrain.LEFT_FOLLOWER_INVERT);
+    rightFollower.setInverted(Constants.Drivetrain.RIGHT_FOLLOWER_INVERT);
 
     // Set ramp rate to make smoother acceleration and avoid electrical spikes
     this.setRampRate(Constants.Drivetrain.RAMP_RATE_SECONDS);
@@ -152,19 +155,34 @@ public class Drivetrain extends SubsystemBase {
     DriveType type = driveTypeChooser.getSelected();
     Tuple<Double, Double> inputs;
 
-    inputs = controller.getArcadeOrCurvatureDriveValues();
+    switch (type) {
+      case ARCADE:
+      case CURVATURE:
+        inputs = controller.getArcadeOrCurvatureDriveValues();
+        break;
+      default:
+        inputs = controller.getTankDriveValues();
+        break;
+    }
     double multiplier = Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
     if (controller.getTurboButton().getAsBoolean()) {
       multiplier = 1.0;
     }
 
+    double steeringInput = inputs.second * multiplier;
+    if (Constants.Drivetrain.INVERT_STEERING) {
+      steeringInput *= -1;
+    }
+
     if (type == DriveType.ARCADE) {
-      this.arcadeDrive(inputs.first * multiplier, inputs.second * multiplier);
+      this.arcadeDrive(inputs.first * multiplier, steeringInput);
     } else if (type == DriveType.CURVATURE) {
       this.curvatureDrive(
           inputs.first * multiplier,
-          inputs.second * multiplier,
+          steeringInput,
           controller.getCurvatureDriveQuickTurn());
+    } else if (type == DriveType.TANK_DRIVE) {
+      this.tankDrive(inputs.first, inputs.second);
     }
   }
 
