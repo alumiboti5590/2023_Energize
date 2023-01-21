@@ -50,9 +50,9 @@ public final class Constants {
     public static final double TURBO_DRIVE_SPEED_SCALAR = 1.0;
 
     public static final int LEFT_LEADER_CAN_ID = 1;
-    public static final int LEFT_FOLLOWER_CAN_ID = 2;
+    public static final int LEFT_FOLLOWER_CAN_ID = 5;
 
-    public static final int RIGHT_LEADER_CAN_ID = 3;
-    public static final int RIGHT_FOLLOWER_CAN_ID = 4;
+    public static final int RIGHT_LEADER_CAN_ID = 12;
+    public static final int RIGHT_FOLLOWER_CAN_ID = 15;
   }
 }
