@@ -5,12 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Intake;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -27,10 +29,13 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private Drivetrain drivetrain;
+  private Intake intake;
 
   // Autonomous Command selector
   // This allows us to pick from a drop down of different autonomous commands
   private SendableChooser<Command> autoChooser;
+
+  private SendableChooser<Double> intakeSpeedChooser;
 
   public RobotContainer() {
     // 1. Configure subsystems that are used by the robot
@@ -45,11 +50,25 @@ public class RobotContainer {
     // 4. Configure the autonomous command to run based on what is selected
     // in the SendableChooser
     configureAutoCommands();
+
+    intakeSpeedChooser = new SendableChooser<>();
+    intakeSpeedChooser.setDefaultOption("0", 0.0);
+    intakeSpeedChooser.addOption("25%", .25);
+    intakeSpeedChooser.addOption("50%", .5);
+    intakeSpeedChooser.addOption("75%", .75);
+    intakeSpeedChooser.addOption("100%", 1.0);
+    intakeSpeedChooser.addOption("-25%", -.25);
+    intakeSpeedChooser.addOption("-50%", -.5);
+    intakeSpeedChooser.addOption("-75%", -.75);
+    intakeSpeedChooser.addOption("-100%", -1.0);
+
+    SmartDashboard.putData("Intake Speed", intakeSpeedChooser);
   }
 
   /** Initialize subsystems across the robot */
   private void configureSubsystems() {
     this.drivetrain = new Drivetrain();
+    this.intake = new Intake();
   }
 
   /** Configure trigger & axis bindings between the robot and the controllers */
@@ -64,8 +83,14 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     RunCommand drivetrainCommand =
         new RunCommand(() -> this.drivetrain.controllerDrive(driverController), this.drivetrain);
-
     this.drivetrain.setDefaultCommand(drivetrainCommand);
+
+    // TODO: this needs to be updated to use controller commands instead, but this is fine
+    //       for testing until we know what we are really doing
+    RunCommand intakeCommand =
+        new RunCommand(
+            () -> this.intake.setIntakeSpeed(-intakeSpeedChooser.getSelected()), this.intake);
+    this.intake.setDefaultCommand(intakeCommand);
   }
 
   /**

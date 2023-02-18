@@ -54,8 +54,14 @@ public class Drivetrain extends SubsystemBase {
     rightLeader.setNeutralMode(NeutralMode.Coast);
 
     // Configure Encoder settings to have proper ratios and distance controls
-    leftEncoder = new Encoder(Constants.Drivetrain.Encoders.LEFT_CHANNEL_A, Constants.Drivetrain.Encoders.LEFT_CHANNEL_B);
-    rightEncoder = new Encoder(Constants.Drivetrain.Encoders.RIGHT_CHANNEL_A, Constants.Drivetrain.Encoders.RIGHT_CHANNEL_B);
+    leftEncoder =
+        new Encoder(
+            Constants.Drivetrain.Encoders.LEFT_CHANNEL_A,
+            Constants.Drivetrain.Encoders.LEFT_CHANNEL_B);
+    rightEncoder =
+        new Encoder(
+            Constants.Drivetrain.Encoders.RIGHT_CHANNEL_A,
+            Constants.Drivetrain.Encoders.RIGHT_CHANNEL_B);
 
     setEncoderDistancePerPulse(Constants.Drivetrain.metersPerEncoderPulse());
 
