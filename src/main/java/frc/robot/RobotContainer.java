@@ -51,6 +51,7 @@ public class RobotContainer {
     // in the SendableChooser
     configureAutoCommands();
 
+    // TODO: delete this and update it with controller input instead
     intakeSpeedChooser = new SendableChooser<>();
     intakeSpeedChooser.setDefaultOption("0", 0.0);
     intakeSpeedChooser.addOption("25%", .25);
@@ -63,6 +64,7 @@ public class RobotContainer {
     intakeSpeedChooser.addOption("-100%", -1.0);
 
     SmartDashboard.putData("Intake Speed", intakeSpeedChooser);
+    // TODO: </end> delete this and update it with controller input instead
   }
 
   /** Initialize subsystems across the robot */
