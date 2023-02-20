@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 public class Intake extends SubsystemBase {
@@ -40,7 +41,7 @@ public class Intake extends SubsystemBase {
         determineRPMVelocityTarget(Constants.Intake.VelocityRPM.CUBE_INTAKE));
     velocityModeMap.put(
         VelocityMode.REVERSE, determineRPMVelocityTarget(Constants.Intake.VelocityRPM.REVERSE));
-    velocityModeMap.put(VelocityMode.ZERO, 0.0);
+    velocityModeMap.put(VelocityMode.ZERO, BigDecimal.ZERO.doubleValue());
   }
 
   /**
