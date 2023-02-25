@@ -1,5 +1,7 @@
 package com.alumiboti5590.util.properties;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 /**
  * RobotProperty is used to fetch dynamic configuration values that change between robots. These use
  * the RobotProperties class to load in the configurations, and then values can be fetched using the
@@ -43,14 +45,12 @@ public enum RobotProperty {
   }
 
   public String getString() {
-    if (this.propertyType != String.class) {}
-
+    this.validatePropertyType(String.class);
     return this.get();
   }
 
   public int getInteger() {
-    if (this.propertyType != Integer.class) {}
-
+    this.validatePropertyType(Integer.class);
     return Integer.parseInt(this.get());
   }
 
@@ -72,5 +72,22 @@ public enum RobotProperty {
 
   private String get() {
     return RobotProperties.getInstance().getProperty(this.getPropertyName());
+  }
+
+  /**
+   * Dumps an error into the DriverStation if the type cast is not correct
+   *
+   * @param classType
+   */
+  private void validatePropertyType(Class<? extends Object> classType) {
+    if (this.propertyType != classType) {
+      String methodName = new Exception().getStackTrace()[1].getMethodName();
+      String err =
+          String.format(
+              "Tried to call `%s.%s()` when it is a `%s`",
+              this.name(), methodName, classType.getName());
+      DriverStation.reportError(err, false);
+      int v = 1 / 0; // Force an error without bubbling it up
+    }
   }
 }

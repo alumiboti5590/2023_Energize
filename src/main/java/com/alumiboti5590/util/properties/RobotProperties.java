@@ -1,9 +1,12 @@
 package com.alumiboti5590.util.properties;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -13,6 +16,8 @@ import java.util.stream.Collectors;
 
 /** Assists RobotProperty to load from the deploy directory properties file. */
 class RobotProperties extends Properties {
+
+  private static final String ROBOT_NAME_FILE = "/etc/robot-name";
 
   private static RobotProperties singleton;
 
@@ -24,7 +29,7 @@ class RobotProperties extends Properties {
   }
 
   public RobotProperties() {
-    this("competition");
+    this(robotName());
   }
 
   public RobotProperties(String propertyFilePrefix) {
@@ -68,14 +73,36 @@ class RobotProperties extends Properties {
 
   /**
    * Verify that all of the keys in the RobotProperty enum exist in the configuration file. This
-   * ensures that all important values have been defined for all important pieces. TODO: We might be
-   * able to change this to also validate types
+   * ensures that all important values have been defined for all important pieces.
    */
   private void verifyRobotProperties() {
-    Set<String> propertyNames =
+    Set<String> requiredPropertyNames =
         Arrays.asList(RobotProperty.class.getEnumConstants()).stream()
             .map(prop -> prop.getPropertyName())
             .collect(Collectors.toSet());
-    this.stringPropertyNames().containsAll(propertyNames);
+
+    Set<String> currentPropertyNames = this.stringPropertyNames();
+    if (!currentPropertyNames.containsAll(requiredPropertyNames)) {
+      requiredPropertyNames.removeAll(currentPropertyNames);
+      String stillMissing = requiredPropertyNames.toString();
+      String error = String.format("Missing robot properties: %s", stillMissing);
+      DriverStation.reportError(error, false);
+      int v = 1 / 0; // Force an error without bubbling it up
+    }
+  }
+
+  // Fetches the robot name from the `ROBOT_NAME_FILE`
+  private static String robotName() {
+    try {
+      return Files.readString(Paths.get(ROBOT_NAME_FILE), StandardCharsets.UTF_8);
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      return "";
+    }
+  }
+
+  /** Used primarily for testing */
+  public static void UNSAFE_setSingleton(String robotName) {
+    singleton = new RobotProperties(robotName);
   }
 }
