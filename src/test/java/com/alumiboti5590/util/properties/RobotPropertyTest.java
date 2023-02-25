@@ -18,6 +18,15 @@ public class RobotPropertyTest {
   }
 
   @Test
+  void valueWithDouble() {
+    RobotProperties.UNSAFE_setSingleton(FULL);
+    double expected =
+        Double.parseDouble(RobotProperties.getInstance().getProperty("standard_drive_speed"));
+    double actual = RobotProperty.STANDARD_DRIVE_SPEED.getDouble();
+    assertEquals(expected, actual);
+  }
+
+  @Test
   void valueWithBoolean() {
     RobotProperties.UNSAFE_setSingleton(FULL);
     boolean expected =

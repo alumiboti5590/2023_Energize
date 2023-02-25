@@ -171,9 +171,9 @@ public class Drivetrain extends SubsystemBase {
         inputs = controller.getTankDriveValues();
         break;
     }
-    double multiplier = Constants.Drivetrain.STANDARD_DRIVE_SPEED_SCALAR;
+    double multiplier = RobotProperty.STANDARD_DRIVE_SPEED.getDouble();
     if (controller.getTurboButton().getAsBoolean()) {
-      multiplier = 1.0;
+      multiplier = RobotProperty.TURBO_DRIVE_SPEED.getDouble();
     }
 
     double steeringInput = inputs.second * multiplier;

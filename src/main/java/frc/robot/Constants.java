@@ -47,15 +47,6 @@ public final class Constants {
       double afterGearBoxReduction = beforeGearBoxReduction / GEAR_BOX_RATIO;
       return afterGearBoxReduction;
     }
-
-    // Used to control the scaled maximum speed that the robot should have
-    // under regular circumstances. This can be overriden to full by using
-    // the "Turbo" button
-    public static final double STANDARD_DRIVE_SPEED_SCALAR = 0.7;
-
-    // Used to control the maximum speed that the robot should have when
-    // the "Turbo" button is activated.
-    public static final double TURBO_DRIVE_SPEED_SCALAR = 1.0;
   }
 
   // All variables associated with the Intake subsystem

@@ -30,6 +30,15 @@ public enum RobotProperty {
   DRIVETRAIN_LEFT_FOLLOWER_INVERT(Boolean.class),
   DRIVETRAIN_RIGHT_FOLLOWER_INVERT(Boolean.class),
 
+  // Used to control the scaled maximum speed that the robot should have
+  // under regular circumstances. This can be overriden to full by using
+  // the "Turbo" button
+  STANDARD_DRIVE_SPEED(Double.class),
+
+  // Used to control the maximum speed that the robot should have when
+  // the "Turbo" button is activated.
+  TURBO_DRIVE_SPEED(Double.class),
+
   // Intake properties
   // -----------------
   INTAKE_MOTOR_ID(Integer.class),
