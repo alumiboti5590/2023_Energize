@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.controllers.IDriverController;
@@ -51,21 +50,6 @@ public class RobotContainer {
     // 4. Configure the autonomous command to run based on what is selected
     // in the SendableChooser
     configureAutoCommands();
-
-    // TODO: delete this and update it with controller input instead
-    intakeSpeedChooser = new SendableChooser<>();
-    intakeSpeedChooser.setDefaultOption("0", 0.0);
-    intakeSpeedChooser.addOption("25%", .25);
-    intakeSpeedChooser.addOption("50%", .5);
-    intakeSpeedChooser.addOption("75%", .75);
-    intakeSpeedChooser.addOption("100%", 1.0);
-    intakeSpeedChooser.addOption("-25%", -.25);
-    intakeSpeedChooser.addOption("-50%", -.5);
-    intakeSpeedChooser.addOption("-75%", -.75);
-    intakeSpeedChooser.addOption("-100%", -1.0);
-
-    SmartDashboard.putData("Intake Speed", intakeSpeedChooser);
-    // TODO: </end> delete this and update it with controller input instead
   }
 
   /** Initialize subsystems across the robot */
@@ -95,11 +79,9 @@ public class RobotContainer {
         new RunCommand(() -> this.drivetrain.controllerDrive(driverController), this.drivetrain);
     this.drivetrain.setDefaultCommand(drivetrainCommand);
 
-    // TODO: this needs to be updated to use controller commands instead, but this is fine
-    //       for testing until we know what we are really doing
     RunCommand intakeCommand =
         new RunCommand(
-            () -> this.intake.setIntakeSpeed(-intakeSpeedChooser.getSelected()), this.intake);
+            () -> this.intake.setIntakeSpeed(operatorController.getIntakeSpeed()), this.intake);
     this.intake.setDefaultCommand(intakeCommand);
   }
 

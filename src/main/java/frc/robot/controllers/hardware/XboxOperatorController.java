@@ -9,7 +9,7 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
   }
 
   @Override
-  public double getIntakePercentage() {
-    return 0; // TODO: fix me
+  public double getIntakeSpeed() {
+    return this.getLeftY(); // A positive (towards user) is input, which kinda makes sense
   }
 }

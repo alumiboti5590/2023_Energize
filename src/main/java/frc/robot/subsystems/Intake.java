@@ -47,7 +47,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Directly sets the motor speed based on a percentage of [-1.0, 1.0] where positive numbers are
-   * intake and negative numbers are exhausting
+   * intake and negative numbers are ejecting; if that's incorrect, then invert the intake motor
    */
   public void setIntakeSpeed(double speed) {
     this.intakeMotor.set(ControlMode.PercentOutput, speed);

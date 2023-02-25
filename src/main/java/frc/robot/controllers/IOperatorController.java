@@ -7,5 +7,5 @@ package frc.robot.controllers;
  */
 public interface IOperatorController {
 
-  public double getIntakePercentage();
+  public double getIntakeSpeed();
 }
