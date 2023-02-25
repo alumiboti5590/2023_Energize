@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.alumiboti5590.util.DistanceUtility;
+import com.alumiboti5590.util.pid.Gains;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -17,6 +19,7 @@ import com.alumiboti5590.util.DistanceUtility;
 public final class Constants {
   public static final double XBOX_CONTROLLER_DEADBAND = 0.1;
 
+  // All variables associated with the Drivetrain subsystem
   public static final class Drivetrain {
     // How fast does the motor try to get up to the desired speed. [0, 1.0]
     // A higher value means slower, but more controlled acceleration, whereas
@@ -73,5 +76,42 @@ public final class Constants {
 
     public static final boolean LEFT_FOLLOWER_INVERT = false;
     public static final boolean RIGHT_FOLLOWER_INVERT = true;
+  }
+
+  // All variables associated with the Intake subsystem
+  public static final class Intake {
+    public static final class Motors {
+      public static final int INTAKE_ID = 10;
+    }
+
+    public static final boolean INTAKE_MOTOR_INVERT = false;
+
+    public static final class Encoder {
+      public static final FeedbackDevice ENCODER_TYPE = FeedbackDevice.QuadEncoder;
+
+      // Which PID slot to pull gains from. Starting 2018, you can choose from
+      // 0,1,2 or 3. Only the first two (0,1) are visible in web-based configuration.
+      public static final int SLOT_ID = 0;
+
+      // Set to zero to skip waiting for confirmation, set to nonzero to wait
+      // and report to DS if action fails.
+      public static final int TIMEOUT_MS = 30;
+
+      public static final int TICKS_PER_REV = 8192;
+      public static final boolean INVERT_PHASE = false; // positive should be motor positive
+    }
+
+    // PID Gains may have to be adjusted based on the responsiveness of control loop.
+    // kF: 1023 represents output value to Talon at 100%, 7200 represents Velocity units at 100%
+    // output
+    public static final Gains PID_GAINS = new Gains(0.25, 0.001, 20, 1023.0 / 7200.0, 300, 1.00);
+
+    // See the following URL to determine these values
+    // https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/blob/master/Java%20General/VelocityClosedLoop/src/main/java/frc/robot/Robot.java#L132-L139
+    public static final class VelocityRPM {
+      public static final double CONE_INTAKE = 0.0;
+      public static final double CUBE_INTAKE = 0.0;
+      public static final double REVERSE = -0.0;
+    }
   }
 }
