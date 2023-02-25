@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.alumiboti5590.util.properties.RobotProperty;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -25,9 +26,9 @@ public class Intake extends SubsystemBase {
   private HashMap<VelocityMode, Double> velocityModeMap;
 
   public Intake() {
-    this.intakeMotor = new WPI_TalonSRX(Constants.Intake.Motors.INTAKE_ID);
+    this.intakeMotor = new WPI_TalonSRX(RobotProperty.INTAKE_MOTOR_ID.getInteger());
     this.intakeMotor.setNeutralMode(NeutralMode.Brake);
-    this.intakeMotor.setInverted(Constants.Intake.INTAKE_MOTOR_INVERT);
+    this.intakeMotor.setInverted(RobotProperty.INTAKE_MOTOR_INVERT.getBoolean());
 
     this.configureClosedLoopEncoder();
 
@@ -46,7 +47,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Directly sets the motor speed based on a percentage of [-1.0, 1.0] where positive numbers are
-   * intake and negative numbers are exhausting
+   * intake and negative numbers are ejecting; if that's incorrect, then invert the intake motor
    */
   public void setIntakeSpeed(double speed) {
     this.intakeMotor.set(ControlMode.PercentOutput, speed);

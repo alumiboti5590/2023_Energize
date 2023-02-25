@@ -17,7 +17,12 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final double XBOX_CONTROLLER_DEADBAND = 0.1;
+
+  // All variables associated with the Controller subsystems
+  public static final class Controller {
+    public static final int DRIVER_CONTROLLER_PORT = 0, OPERATOR_CONTROLLER_PORT = 1;
+    public static final double XBOX_CONTROLLER_DEADBAND = 0.1;
+  }
 
   // All variables associated with the Drivetrain subsystem
   public static final class Drivetrain {
@@ -32,9 +37,9 @@ public final class Constants {
     public static final int CURRENT_LIMIT = 50;
 
     // Hardware/Mechanical Constants
-    public static final double GEAR_BOX_RATIO = 7.31; //  1.45; 10.71; 12.75;
-    public static final double WHEEL_DIAMETER_INCHES = 6;
-    public static final double ENCODER_COUNTS_PER_ROTATION = 96;
+    public static final double GEAR_BOX_RATIO = 7.31, //  1.45; 10.71; 12.75;
+        WHEEL_DIAMETER_INCHES = 6,
+        ENCODER_COUNTS_PER_ROTATION = 96;
 
     public static double metersPerEncoderPulse() {
       double wheelsDiameterAsCm = DistanceUtility.inchesToCentimeters(WHEEL_DIAMETER_INCHES);
@@ -51,41 +56,10 @@ public final class Constants {
     // Used to control the maximum speed that the robot should have when
     // the "Turbo" button is activated.
     public static final double TURBO_DRIVE_SPEED_SCALAR = 1.0;
-
-    // Motor CAN ports
-    public static final class Motors {
-      public static final int LEFT_LEADER_ID = 1;
-      public static final int LEFT_FOLLOWER_ID = 5;
-
-      public static final int RIGHT_LEADER_ID = 12;
-      public static final int RIGHT_FOLLOWER_ID = 15;
-    }
-
-    // Encoder DIO ports
-    public static final class Encoders {
-      public static final int LEFT_CHANNEL_A = 5;
-      public static final int LEFT_CHANNEL_B = 6;
-      public static final int RIGHT_CHANNEL_A = 7;
-      public static final int RIGHT_CHANNEL_B = 8;
-    }
-
-    public static final boolean INVERT_STEERING = true;
-
-    public static final boolean LEFT_LEADER_INVERT = false;
-    public static final boolean RIGHT_LEADER_INVERT = true;
-
-    public static final boolean LEFT_FOLLOWER_INVERT = false;
-    public static final boolean RIGHT_FOLLOWER_INVERT = true;
   }
 
   // All variables associated with the Intake subsystem
   public static final class Intake {
-    public static final class Motors {
-      public static final int INTAKE_ID = 10;
-    }
-
-    public static final boolean INTAKE_MOTOR_INVERT = false;
-
     public static final class Encoder {
       public static final FeedbackDevice ENCODER_TYPE = FeedbackDevice.QuadEncoder;
 
@@ -109,9 +83,7 @@ public final class Constants {
     // See the following URL to determine these values
     // https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/blob/master/Java%20General/VelocityClosedLoop/src/main/java/frc/robot/Robot.java#L132-L139
     public static final class VelocityRPM {
-      public static final double CONE_INTAKE = 0.0;
-      public static final double CUBE_INTAKE = 0.0;
-      public static final double REVERSE = -0.0;
+      public static final double CONE_INTAKE = 0.0, CUBE_INTAKE = 0.0, REVERSE = -0.0;
     }
   }
 }
