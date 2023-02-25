@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
+import frc.robot.controllers.hardware.XboxOperatorController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 
@@ -75,7 +76,14 @@ public class RobotContainer {
 
   /** Configure trigger & axis bindings between the robot and the controllers */
   private void configureBindings() {
-    driverController = new XboxDriverController(0, Constants.XBOX_CONTROLLER_DEADBAND);
+    driverController =
+        new XboxDriverController(
+            Constants.Controller.DRIVER_CONTROLLER_PORT,
+            Constants.Controller.XBOX_CONTROLLER_DEADBAND);
+    operatorController =
+        new XboxOperatorController(
+            Constants.Controller.OPERATOR_CONTROLLER_PORT,
+            Constants.Controller.XBOX_CONTROLLER_DEADBAND);
   }
 
   /**

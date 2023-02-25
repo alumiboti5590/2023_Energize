@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.alumiboti5590.util.Tuple;
 import com.alumiboti5590.util.filters.IInputFilter;
 import com.alumiboti5590.util.filters.PolynomialInputFilter;
+import com.alumiboti5590.util.properties.RobotProperty;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
@@ -41,10 +42,10 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   public Drivetrain() {
     // Set up the motor controllers
-    leftLeader = new WPI_TalonSRX(Constants.Drivetrain.Motors.LEFT_LEADER_ID);
-    leftFollower = new WPI_TalonSRX(Constants.Drivetrain.Motors.LEFT_FOLLOWER_ID);
-    rightLeader = new WPI_TalonSRX(Constants.Drivetrain.Motors.RIGHT_LEADER_ID);
-    rightFollower = new WPI_TalonSRX(Constants.Drivetrain.Motors.RIGHT_FOLLOWER_ID);
+    leftLeader = new WPI_TalonSRX(RobotProperty.DRIVETRAIN_LEFT_LEADER_ID.getInteger());
+    leftFollower = new WPI_TalonSRX(RobotProperty.DRIVETRAIN_LEFT_FOLLOWER_ID.getInteger());
+    rightLeader = new WPI_TalonSRX(RobotProperty.DRIVETRAIN_RIGHT_LEADER_ID.getInteger());
+    rightFollower = new WPI_TalonSRX(RobotProperty.DRIVETRAIN_RIGHT_FOLLOWER_ID.getInteger());
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
@@ -56,12 +57,12 @@ public class Drivetrain extends SubsystemBase {
     // Configure Encoder settings to have proper ratios and distance controls
     leftEncoder =
         new Encoder(
-            Constants.Drivetrain.Encoders.LEFT_CHANNEL_A,
-            Constants.Drivetrain.Encoders.LEFT_CHANNEL_B);
+            RobotProperty.DRIVETRAIN_ENCODER_LEFT_CHAN_A.getInteger(),
+            RobotProperty.DRIVETRAIN_ENCODER_LEFT_CHAN_B.getInteger());
     rightEncoder =
         new Encoder(
-            Constants.Drivetrain.Encoders.RIGHT_CHANNEL_A,
-            Constants.Drivetrain.Encoders.RIGHT_CHANNEL_B);
+            RobotProperty.DRIVETRAIN_ENCODER_RIGHT_CHAN_A.getInteger(),
+            RobotProperty.DRIVETRAIN_ENCODER_RIGHT_CHAN_B.getInteger());
 
     setEncoderDistancePerPulse(Constants.Drivetrain.metersPerEncoderPulse());
 
@@ -72,11 +73,11 @@ public class Drivetrain extends SubsystemBase {
     setCurrentLimit(Constants.Drivetrain.CURRENT_LIMIT);
 
     // Set motor inversions if necessary
-    leftLeader.setInverted(Constants.Drivetrain.LEFT_LEADER_INVERT);
-    rightLeader.setInverted(Constants.Drivetrain.RIGHT_LEADER_INVERT);
+    leftLeader.setInverted(RobotProperty.DRIVETRAIN_LEFT_LEADER_INVERT.getBoolean());
+    rightLeader.setInverted(RobotProperty.DRIVETRAIN_RIGHT_LEADER_INVERT.getBoolean());
 
-    leftFollower.setInverted(Constants.Drivetrain.LEFT_FOLLOWER_INVERT);
-    rightFollower.setInverted(Constants.Drivetrain.RIGHT_FOLLOWER_INVERT);
+    leftFollower.setInverted(RobotProperty.DRIVETRAIN_LEFT_FOLLOWER_INVERT.getBoolean());
+    rightFollower.setInverted(RobotProperty.DRIVETRAIN_RIGHT_FOLLOWER_INVERT.getBoolean());
 
     // Set ramp rate to make smoother acceleration and avoid electrical spikes
     this.setRampRate(Constants.Drivetrain.RAMP_RATE_SECONDS);
@@ -176,7 +177,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     double steeringInput = inputs.second * multiplier;
-    if (Constants.Drivetrain.INVERT_STEERING) {
+    if (RobotProperty.DRIVETRAIN_INVERT_STEERING.getBoolean()) {
       steeringInput *= -1;
     }
 
