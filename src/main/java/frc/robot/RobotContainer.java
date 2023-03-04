@@ -12,6 +12,8 @@ import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
 import frc.robot.controllers.XboxOperatorController;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Grabber;
+import frc.robot.subsystems.Grabber.GrabMode;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
 
@@ -30,6 +32,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private Drivetrain drivetrain;
+  private Grabber grabber;
   private Intake intake;
   private Shoulder shoulder;
 
@@ -70,6 +73,13 @@ public class RobotContainer {
         new XboxOperatorController(
             Constants.Controller.OPERATOR_CONTROLLER_PORT,
             Constants.Controller.XBOX_CONTROLLER_DEADBAND);
+
+    operatorController
+        .getGrabOpen()
+        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
+    operatorController
+        .getGrabClose()
+        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
   }
 
   /**
@@ -78,20 +88,17 @@ public class RobotContainer {
    */
   private void configureDefaultCommands() {
     // Allows for dynamically controlling the drivetrain with the drive controller
-    RunCommand drivetrainCommand =
-        new RunCommand(() -> drivetrain.controllerDrive(driverController), drivetrain);
-    this.drivetrain.setDefaultCommand(drivetrainCommand);
+    this.drivetrain.setDefaultCommand(
+        new RunCommand(() -> drivetrain.controllerDrive(driverController), drivetrain));
 
     // Runs the intake at the percentage given by the controller
-    RunCommand intakeCommand =
-        new RunCommand(() -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()), intake);
-    this.intake.setDefaultCommand(intakeCommand);
+    this.intake.setDefaultCommand(
+        new RunCommand(() -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()), intake));
 
     // Allows the operator controller to modify and adjust the arm position in small increments
-    RunCommand shoulderCommand =
+    this.shoulder.setDefaultCommand(
         new RunCommand(
-            () -> shoulder.controllerAction(operatorController.getShoulderModifier()), shoulder);
-    this.shoulder.setDefaultCommand(shoulderCommand);
+            () -> shoulder.controllerAction(operatorController.getShoulderModifier()), shoulder));
   }
 
   /**
