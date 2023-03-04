@@ -14,6 +14,7 @@ import frc.robot.Constants;
 
 public class Shoulder extends SubsystemBase {
 
+  /** Predetermined shoulder positions */
   public enum ShoulderPosition {
     ZERO(Constants.Shoulder.MIN_POSITION),
     MAX(Constants.Shoulder.MAX_POSITION);
@@ -29,6 +30,7 @@ public class Shoulder extends SubsystemBase {
     }
   }
 
+  /** Either Open (percentage) or Closed (position-based) */
   private enum ControlMode {
     OPEN,
     CLOSED;
@@ -63,7 +65,7 @@ public class Shoulder extends SubsystemBase {
   /** Parse input from a controller and handle the different control modes */
   public void controllerAction(double desiredInput) {
     if (controlModeChooser.getSelected() == ControlMode.OPEN) {
-      this.shoulderMotor.set(desiredInput);
+      this.percentageControl(desiredInput);
     } else {
       this.adjustGoalPosition(desiredInput);
     }
@@ -99,6 +101,15 @@ public class Shoulder extends SubsystemBase {
    */
   public void setGoalPosition(ShoulderPosition goaShoulderPosition) {
     this.goalPosition = goaShoulderPosition.getPosition();
+  }
+
+  /** Control the arm via percentage speed of [-1, 1] */
+  public void percentageControl(double desiredInput) {
+    // When going down, we dont really need power
+    if (desiredInput < 0) {
+      desiredInput = Math.max(desiredInput, Constants.Shoulder.OPEN_PERCENTAGE_DOWN_MAX);
+    }
+    this.shoulderMotor.set(desiredInput);
   }
 
   public void smartMotionPeriodic() {

@@ -86,6 +86,8 @@ public final class Constants {
     // TODO: starting with a high number to ensure we dont drive the thing through itself
     public static final double ENCODER_CONVERSION_FACTOR = 10.0;
 
+    public static final double OPEN_PERCENTAGE_DOWN_MAX = -.05;
+
     // TODO: This needs to be tested
     public static final double FORWARD_FEED_UPWARDS = .2;
 
