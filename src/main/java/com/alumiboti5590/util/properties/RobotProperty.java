@@ -57,8 +57,8 @@ public enum RobotProperty {
   // Shoulder properties
   // -------------------
   SHOULDER_MOTOR_ID(Integer.class),
-  SHOULDER_MOTOR_BRUSHLESS(Boolean.class),
-  SHOULDER_MOTOR_INVERT(Integer.class);
+  SHOULDER_MOTOR_INVERT(Boolean.class),
+  SHOULDER_ENCODER_INVERT(Boolean.class);
 
   // ------------------
   // /END OF PROPERTIES

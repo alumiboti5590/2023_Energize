@@ -92,7 +92,7 @@ public class RobotContainer {
     // Allows the operator controller to modify and adjust the arm position in small increments
     RunCommand shoulderCommand =
         new RunCommand(
-            () -> shoulder.openLoopControl(operatorController.getShoulderModifier()), shoulder);
+            () -> shoulder.controllerAction(operatorController.getShoulderModifier()), shoulder);
     this.shoulder.setDefaultCommand(shoulderCommand);
   }
 

@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -28,11 +29,18 @@ public class Shoulder extends SubsystemBase {
     }
   }
 
+  private enum ControlMode {
+    OPEN,
+    CLOSED;
+  }
+
   private CANSparkMax shoulderMotor;
   private SparkMaxPIDController pidController;
   private RelativeEncoder shoulderEncoder;
 
-  double goalPosition = 0;
+  private double goalPosition = 0;
+
+  private SendableChooser<ControlMode> controlModeChooser;
 
   public Shoulder() {
     this.shoulderMotor =
@@ -41,10 +49,24 @@ public class Shoulder extends SubsystemBase {
     this.shoulderMotor.setIdleMode(IdleMode.kBrake);
 
     this.shoulderEncoder = this.shoulderMotor.getEncoder();
+    this.shoulderEncoder.setInverted(RobotProperty.SHOULDER_ENCODER_INVERT.getBoolean());
     this.shoulderEncoder.setPositionConversionFactor(Constants.Shoulder.ENCODER_CONVERSION_FACTOR);
     this.shoulderEncoder.setPosition(this.goalPosition);
 
     this.pidController = this.shoulderMotor.getPIDController();
+
+    controlModeChooser = new SendableChooser<ControlMode>();
+    controlModeChooser.setDefaultOption("Closed Position Mode", ControlMode.CLOSED);
+    controlModeChooser.addOption("Open Mode", ControlMode.OPEN);
+  }
+
+  /** Parse input from a controller and handle the different control modes */
+  public void controllerAction(double desiredInput) {
+    if (controlModeChooser.getSelected() == ControlMode.OPEN) {
+      this.shoulderMotor.set(desiredInput);
+    } else {
+      this.adjustGoalPosition(desiredInput);
+    }
   }
 
   /**
@@ -52,7 +74,7 @@ public class Shoulder extends SubsystemBase {
    * will raise the arm, a negative value will lower the arm, and a zero value will not affect the
    * arm at all.
    */
-  public void openLoopControl(double modifier) {
+  public void adjustGoalPosition(double modifier) {
     if (modifier > 0) {
       this.raiseShoulder();
     } else if (modifier < 0) {
@@ -79,9 +101,7 @@ public class Shoulder extends SubsystemBase {
     this.goalPosition = goaShoulderPosition.getPosition();
   }
 
-  /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */
-  @Override
-  public void periodic() {
+  public void smartMotionPeriodic() {
     // Bound our goal position to something realistic
     this.goalPosition = this.ensurePositionInRange(this.goalPosition);
 
@@ -93,6 +113,14 @@ public class Shoulder extends SubsystemBase {
     }
 
     this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
+  }
+
+  /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */
+  @Override
+  public void periodic() {
+    if (controlModeChooser.getSelected() == ControlMode.CLOSED) {
+      this.smartMotionPeriodic();
+    }
     this.updateSmartDashboard();
   }
 
