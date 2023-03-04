@@ -11,7 +11,6 @@ import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
 import frc.robot.controllers.XboxOperatorController;
-import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
@@ -31,7 +30,6 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private Drivetrain drivetrain;
-  private Arm arm;
   private Intake intake;
   private Shoulder shoulder;
 
