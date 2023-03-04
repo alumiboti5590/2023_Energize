@@ -2,6 +2,7 @@ package com.alumiboti5590.util.properties;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,8 +61,11 @@ class RobotProperties extends Properties {
    */
   private void loadDeployFileContents(String propertyFilePrefix) {
     String deployDirPath = Filesystem.getDeployDirectory().getAbsolutePath();
-    Path propertiesFilePath =
-        Paths.get(deployDirPath, String.format("%s.properties", propertyFilePrefix));
+    Path propertiesFilePath = Paths.get(deployDirPath, propertyFilePrefix + ".properties");
+    SmartDashboard.putString("Robot Name", propertyFilePrefix);
+    SmartDashboard.putString("Robot Properties File", propertiesFilePath.toString());
+    System.out.println(propertiesFilePath.toString());
+
     try {
       InputStream input = new FileInputStream(propertiesFilePath.toString());
       this.clear(); // Ensure no previous keys exist
@@ -94,7 +98,7 @@ class RobotProperties extends Properties {
   // Fetches the robot name from the `ROBOT_NAME_FILE`
   private static String robotName() {
     try {
-      return Files.readString(Paths.get(ROBOT_NAME_FILE), StandardCharsets.UTF_8);
+      return Files.readString(Paths.get(ROBOT_NAME_FILE), StandardCharsets.UTF_8).trim();
     } catch (IOException ex) {
       ex.printStackTrace();
       return "";

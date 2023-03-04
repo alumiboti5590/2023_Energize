@@ -31,6 +31,9 @@ public enum RobotProperty {
   DRIVETRAIN_LEFT_FOLLOWER_INVERT(Boolean.class),
   DRIVETRAIN_RIGHT_FOLLOWER_INVERT(Boolean.class),
 
+  DRIVETRAIN_ENCODER_LEFT_INVERT(Boolean.class),
+  DRIVETRAIN_ENCODER_RIGHT_INVERT(Boolean.class),
+
   // Used to control the scaled maximum speed that the robot should have
   // under regular circumstances. This can be overriden to full by using
   // the "Turbo" button
@@ -57,8 +60,7 @@ public enum RobotProperty {
   // Shoulder properties
   // -------------------
   SHOULDER_MOTOR_ID(Integer.class),
-  SHOULDER_MOTOR_INVERT(Boolean.class),
-  SHOULDER_ENCODER_INVERT(Boolean.class);
+  SHOULDER_MOTOR_INVERT(Boolean.class);
 
   // ------------------
   // /END OF PROPERTIES

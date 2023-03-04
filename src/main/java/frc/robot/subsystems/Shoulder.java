@@ -51,7 +51,6 @@ public class Shoulder extends SubsystemBase {
     this.shoulderMotor.setIdleMode(IdleMode.kBrake);
 
     this.shoulderEncoder = this.shoulderMotor.getEncoder();
-    this.shoulderEncoder.setInverted(RobotProperty.SHOULDER_ENCODER_INVERT.getBoolean());
     this.shoulderEncoder.setPositionConversionFactor(Constants.Shoulder.ENCODER_CONVERSION_FACTOR);
     this.shoulderEncoder.setPosition(this.goalPosition);
 
@@ -107,7 +106,10 @@ public class Shoulder extends SubsystemBase {
   public void percentageControl(double desiredInput) {
     // When going down, we dont really need power
     if (desiredInput < 0) {
-      desiredInput = Math.max(desiredInput, Constants.Shoulder.OPEN_PERCENTAGE_DOWN_MAX);
+      desiredInput =
+          Math.min(
+              Constants.Shoulder.OPEN_PERCENTAGE_MAX,
+              Math.max(desiredInput, Constants.Shoulder.OPEN_PERCENTAGE_MIN));
     }
     this.shoulderMotor.set(desiredInput);
   }
@@ -146,5 +148,6 @@ public class Shoulder extends SubsystemBase {
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Shoulder Position", this.shoulderEncoder.getPosition());
     SmartDashboard.putNumber("Shoulder Goal", this.goalPosition);
+    SmartDashboard.putData(controlModeChooser);
   }
 }

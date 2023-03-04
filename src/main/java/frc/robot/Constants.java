@@ -21,7 +21,7 @@ public final class Constants {
   // All variables associated with the Controller subsystems
   public static final class Controller {
     public static final int DRIVER_CONTROLLER_PORT = 0, OPERATOR_CONTROLLER_PORT = 1;
-    public static final double XBOX_CONTROLLER_DEADBAND = 0.1;
+    public static final double XBOX_CONTROLLER_DEADBAND = 0.2;
   }
 
   // All variables associated with the Drivetrain subsystem
@@ -86,7 +86,8 @@ public final class Constants {
     // TODO: starting with a high number to ensure we dont drive the thing through itself
     public static final double ENCODER_CONVERSION_FACTOR = 10.0;
 
-    public static final double OPEN_PERCENTAGE_DOWN_MAX = -.05;
+    public static final double OPEN_PERCENTAGE_MAX = .5;
+    public static final double OPEN_PERCENTAGE_MIN = -.2;
 
     // TODO: This needs to be tested
     public static final double FORWARD_FEED_UPWARDS = .2;

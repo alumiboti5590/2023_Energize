@@ -53,6 +53,8 @@ public class Drivetrain extends SubsystemBase {
     // Set up coast mode
     leftLeader.setNeutralMode(NeutralMode.Coast);
     rightLeader.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
 
     // Configure Encoder settings to have proper ratios and distance controls
     leftEncoder =
@@ -78,6 +80,9 @@ public class Drivetrain extends SubsystemBase {
 
     leftFollower.setInverted(RobotProperty.DRIVETRAIN_LEFT_FOLLOWER_INVERT.getBoolean());
     rightFollower.setInverted(RobotProperty.DRIVETRAIN_RIGHT_FOLLOWER_INVERT.getBoolean());
+
+    leftEncoder.setReverseDirection(RobotProperty.DRIVETRAIN_ENCODER_LEFT_INVERT.getBoolean());
+    rightEncoder.setReverseDirection(RobotProperty.DRIVETRAIN_ENCODER_RIGHT_INVERT.getBoolean());
 
     // Set ramp rate to make smoother acceleration and avoid electrical spikes
     this.setRampRate(Constants.Drivetrain.RAMP_RATE_SECONDS);
