@@ -8,4 +8,6 @@ package frc.robot.controllers;
 public interface IOperatorController {
 
   public double getIntakeSpeed();
+
+  public double getShoulderModifier();
 }

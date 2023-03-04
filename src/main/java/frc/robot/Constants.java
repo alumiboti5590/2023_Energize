@@ -77,4 +77,19 @@ public final class Constants {
       public static final double CONE_INTAKE = 0.0, CUBE_INTAKE = 0.0, REVERSE = -0.0;
     }
   }
+
+  public static final class Arm {
+    public static final double ENCODER_CONVERSION_FACTOR = 0.0;
+  }
+
+  public static final class Shoulder {
+    // TODO: starting with a high number to ensure we dont drive the thing through itself
+    public static final double ENCODER_CONVERSION_FACTOR = 10.0;
+
+    // TODO: This needs to be tested
+    public static final double FORWARD_FEED_UPWARDS = .2;
+
+    public static final double MIN_POSITION = 0;
+    public static final double MAX_POSITION = 100;
+  }
 }

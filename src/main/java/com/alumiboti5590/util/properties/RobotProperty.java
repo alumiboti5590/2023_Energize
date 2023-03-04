@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public enum RobotProperty {
 
+  // ---------------------
   // Drivetrain properties
   // ---------------------
   DRIVETRAIN_LEFT_LEADER_ID(Integer.class),
@@ -39,11 +40,27 @@ public enum RobotProperty {
   // the "Turbo" button is activated.
   TURBO_DRIVE_SPEED(Double.class),
 
+  // -----------------
+  // Arm properties
+  // -----------------
+  ARM_MOTOR_ID(Integer.class),
+  ARM_MOTOR_BRUSHLESS(Boolean.class),
+  ARM_MOTOR_INVERT(Integer.class),
+
+  // -----------------
   // Intake properties
   // -----------------
   INTAKE_MOTOR_ID(Integer.class),
-  INTAKE_MOTOR_INVERT(Boolean.class);
+  INTAKE_MOTOR_INVERT(Boolean.class),
 
+  // -------------------
+  // Shoulder properties
+  // -------------------
+  SHOULDER_MOTOR_ID(Integer.class),
+  SHOULDER_MOTOR_BRUSHLESS(Boolean.class),
+  SHOULDER_MOTOR_INVERT(Integer.class);
+
+  // ------------------
   // /END OF PROPERTIES
   // ------------------
 
