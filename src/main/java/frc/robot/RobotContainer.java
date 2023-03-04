@@ -10,9 +10,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
-import frc.robot.controllers.hardware.XboxOperatorController;
+import frc.robot.controllers.XboxOperatorController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shoulder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,12 +31,11 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private Drivetrain drivetrain;
   private Intake intake;
+  private Shoulder shoulder;
 
   // Autonomous Command selector
   // This allows us to pick from a drop down of different autonomous commands
   private SendableChooser<Command> autoChooser;
-
-  private SendableChooser<Double> intakeSpeedChooser;
 
   public RobotContainer() {
     // 1. Configure subsystems that are used by the robot
@@ -55,7 +55,9 @@ public class RobotContainer {
   /** Initialize subsystems across the robot */
   private void configureSubsystems() {
     this.drivetrain = new Drivetrain();
+    // this.arm = new Arm();
     this.intake = new Intake();
+    this.shoulder = new Shoulder();
   }
 
   /** Configure trigger & axis bindings between the robot and the controllers */
@@ -75,14 +77,21 @@ public class RobotContainer {
    * is for the drivetrain to continuously be allowing the robot to move around the field.
    */
   private void configureDefaultCommands() {
+    // Allows for dynamically controlling the drivetrain with the drive controller
     RunCommand drivetrainCommand =
-        new RunCommand(() -> this.drivetrain.controllerDrive(driverController), this.drivetrain);
+        new RunCommand(() -> drivetrain.controllerDrive(driverController), drivetrain);
     this.drivetrain.setDefaultCommand(drivetrainCommand);
 
+    // Runs the intake at the percentage given by the controller
     RunCommand intakeCommand =
-        new RunCommand(
-            () -> this.intake.setIntakeSpeed(operatorController.getIntakeSpeed()), this.intake);
+        new RunCommand(() -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()), intake);
     this.intake.setDefaultCommand(intakeCommand);
+
+    // Allows the operator controller to modify and adjust the arm position in small increments
+    RunCommand shoulderCommand =
+        new RunCommand(
+            () -> shoulder.controllerAction(operatorController.getShoulderModifier()), shoulder);
+    this.shoulder.setDefaultCommand(shoulderCommand);
   }
 
   /**

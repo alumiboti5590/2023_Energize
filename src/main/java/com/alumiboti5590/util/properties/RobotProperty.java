@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public enum RobotProperty {
 
+  // ---------------------
   // Drivetrain properties
   // ---------------------
   DRIVETRAIN_LEFT_LEADER_ID(Integer.class),
@@ -30,6 +31,9 @@ public enum RobotProperty {
   DRIVETRAIN_LEFT_FOLLOWER_INVERT(Boolean.class),
   DRIVETRAIN_RIGHT_FOLLOWER_INVERT(Boolean.class),
 
+  DRIVETRAIN_ENCODER_LEFT_INVERT(Boolean.class),
+  DRIVETRAIN_ENCODER_RIGHT_INVERT(Boolean.class),
+
   // Used to control the scaled maximum speed that the robot should have
   // under regular circumstances. This can be overriden to full by using
   // the "Turbo" button
@@ -39,11 +43,26 @@ public enum RobotProperty {
   // the "Turbo" button is activated.
   TURBO_DRIVE_SPEED(Double.class),
 
+  // -----------------
+  // Arm properties
+  // -----------------
+  ARM_MOTOR_ID(Integer.class),
+  ARM_MOTOR_BRUSHLESS(Boolean.class),
+  ARM_MOTOR_INVERT(Integer.class),
+
+  // -----------------
   // Intake properties
   // -----------------
   INTAKE_MOTOR_ID(Integer.class),
-  INTAKE_MOTOR_INVERT(Boolean.class);
+  INTAKE_MOTOR_INVERT(Boolean.class),
 
+  // -------------------
+  // Shoulder properties
+  // -------------------
+  SHOULDER_MOTOR_ID(Integer.class),
+  SHOULDER_MOTOR_INVERT(Boolean.class);
+
+  // ------------------
   // /END OF PROPERTIES
   // ------------------
 

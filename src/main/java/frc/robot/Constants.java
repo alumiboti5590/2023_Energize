@@ -21,7 +21,7 @@ public final class Constants {
   // All variables associated with the Controller subsystems
   public static final class Controller {
     public static final int DRIVER_CONTROLLER_PORT = 0, OPERATOR_CONTROLLER_PORT = 1;
-    public static final double XBOX_CONTROLLER_DEADBAND = 0.1;
+    public static final double XBOX_CONTROLLER_DEADBAND = 0.2;
   }
 
   // All variables associated with the Drivetrain subsystem
@@ -76,5 +76,23 @@ public final class Constants {
     public static final class VelocityRPM {
       public static final double CONE_INTAKE = 0.0, CUBE_INTAKE = 0.0, REVERSE = -0.0;
     }
+  }
+
+  public static final class Arm {
+    public static final double ENCODER_CONVERSION_FACTOR = 0.0;
+  }
+
+  public static final class Shoulder {
+    // TODO: starting with a high number to ensure we dont drive the thing through itself
+    public static final double ENCODER_CONVERSION_FACTOR = 10.0;
+
+    public static final double OPEN_PERCENTAGE_MAX = .5;
+    public static final double OPEN_PERCENTAGE_MIN = -.2;
+
+    // TODO: This needs to be tested
+    public static final double FORWARD_FEED_UPWARDS = .2;
+
+    public static final double MIN_POSITION = 0;
+    public static final double MAX_POSITION = 100;
   }
 }
