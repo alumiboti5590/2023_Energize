@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.alumiboti5590.util.Tuple;
 import com.alumiboti5590.util.filters.IInputFilter;
 import com.alumiboti5590.util.filters.PolynomialInputFilter;
+import com.alumiboti5590.util.math.AngleClamp;
 import com.alumiboti5590.util.pid.Gains;
 import com.alumiboti5590.util.properties.RobotProperty;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -166,6 +167,15 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetOdometry() {
     resetEncoders();
+  }
+
+  public void setRelativeDesiredHeading(double relativeHeading) {
+    this.setDesiredHeading(getHeadingDegrees() + relativeHeading);
+  }
+
+  public void setDesiredHeading(double heading) {
+    // we need to make it between [-180, 180]
+    this.desiredHeading = AngleClamp.navXClamp(heading);
   }
 
   public double getHeadingDegrees() {
