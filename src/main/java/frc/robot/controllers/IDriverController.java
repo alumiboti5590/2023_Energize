@@ -26,4 +26,6 @@ public interface IDriverController {
 
   // Define buttons
   public Trigger getTurboButton();
+
+  public boolean getStraightDrive();
 }

@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -165,7 +166,7 @@ public class Shoulder extends SubsystemBase {
     SmartDashboard.putNumber("Shoulder Open Desired", desiredInput);
     // When going down, we dont really need power
     if (desiredInput < 0) {
-      desiredInput = Math.min(maxPercentage, Math.max(desiredInput, minPercentage));
+      desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
     if (isFullyDown() && desiredInput < 0) {
       desiredInput = 0;

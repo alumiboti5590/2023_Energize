@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.alumiboti5590.util.properties.RobotProperty;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Grabber extends SubsystemBase {
@@ -34,14 +33,5 @@ public class Grabber extends SubsystemBase {
 
   public void setGrabMode(GrabMode grabMode) {
     this.grabSolenoid.set(grabMode == GrabMode.OPEN ? GRAB_OPEN : GRAB_CLOSE);
-  }
-
-  @Override
-  public void periodic() {
-    this.updateSmartDashboard();
-  }
-
-  public void updateSmartDashboard() {
-    SmartDashboard.putBoolean("Grabber Closed", grabSolenoid.get() == GRAB_CLOSE);
   }
 }

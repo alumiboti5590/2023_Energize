@@ -47,6 +47,9 @@ public final class Constants {
       double afterGearBoxReduction = beforeGearBoxReduction / GEAR_BOX_RATIO;
       return afterGearBoxReduction;
     }
+
+    public static final Gains STRAIGHT_PID = new Gains(.05, 0, .1, 0, 0, 0);
+    public static final double STRAIGHT_MAX_TURN_ROTATION = .3;
   }
 
   // All variables associated with the Intake subsystem

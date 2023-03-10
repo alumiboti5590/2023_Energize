@@ -43,6 +43,8 @@ public enum RobotProperty {
   // the "Turbo" button is activated.
   TURBO_DRIVE_SPEED(Double.class),
 
+  DRIVETRAIN_INVERT_STEER_PID(Boolean.class),
+
   // -----------------
   // Arm properties
   // -----------------

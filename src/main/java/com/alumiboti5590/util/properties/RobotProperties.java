@@ -63,7 +63,6 @@ class RobotProperties extends Properties {
     String deployDirPath = Filesystem.getDeployDirectory().getAbsolutePath();
     Path propertiesFilePath = Paths.get(deployDirPath, propertyFilePrefix + ".properties");
     SmartDashboard.putString("Robot Name", propertyFilePrefix);
-    SmartDashboard.putString("Robot Properties File", propertiesFilePath.toString());
     System.out.println(propertiesFilePath.toString());
 
     try {

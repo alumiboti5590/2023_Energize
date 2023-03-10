@@ -44,4 +44,9 @@ public class XboxDriverController extends CustomXBoxController implements IDrive
   public Trigger getTurboButton() {
     return this.leftBumperTrigger;
   }
+
+  @Override
+  public boolean getStraightDrive() {
+    return this.getAButton();
+  }
 }

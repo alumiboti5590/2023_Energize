@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -125,7 +126,7 @@ public class Arm extends SubsystemBase {
   public void percentageControl(double desiredInput) {
     // When going down, we dont really need power
     if (desiredInput < 0) {
-      desiredInput = Math.min(maxPercentage, Math.max(desiredInput, minPercentage));
+      desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
     if (isFullyRetracted() && desiredInput < 0) {
       desiredInput = 0;
@@ -144,12 +145,6 @@ public class Arm extends SubsystemBase {
   }
 
   public void smartMotionPeriodic() {
-    pidController.setP(SmartDashboard.getNumber("Arm P Gain", pidController.getP()));
-    pidController.setI(SmartDashboard.getNumber("Arm I Gain", pidController.getI()));
-    pidController.setD(SmartDashboard.getNumber("Arm D Gain", pidController.getD()));
-    pidController.setIZone(SmartDashboard.getNumber("Arm I Zone", pidController.getIZone()));
-    pidController.setFF(SmartDashboard.getNumber("Arm Feed Forward", pidController.getFF()));
-
     if (this.goalPosition <= minPosition && this.isFullyRetracted()) {
       this.goalPosition = minPosition;
       this.encoder.setPosition(minPosition);
@@ -171,7 +166,7 @@ public class Arm extends SubsystemBase {
 
   /** Ensure the position provided is not outside of the shoulder's physical boundaries */
   private double ensurePositionInRange(double desiredPosition) {
-    return Math.min(Math.max(minPosition, desiredPosition), maxPosition);
+    return MathUtil.clamp(desiredPosition, minPosition, maxPosition);
   }
 
   public void resetEncoder() {
