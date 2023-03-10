@@ -92,15 +92,11 @@ public class Shoulder extends SubsystemBase {
     pidController.setFF(pidGains.kF);
     pidController.setOutputRange(
         Constants.Shoulder.PERCENTAGE_MIN, Constants.Shoulder.PERCENTAGE_MAX);
-
-    // display PID coefficients on SmartDashboard
-    SmartDashboard.putNumber("Sh P Gain", pidController.getP());
-    SmartDashboard.putNumber("Sh I Gain", pidController.getI());
-    SmartDashboard.putNumber("Sh D Gain", pidController.getD());
-    SmartDashboard.putNumber("Sh I Zone", pidController.getIZone());
-    SmartDashboard.putNumber("Sh Feed Forward", pidController.getFF());
-    SmartDashboard.putNumber("Sh Max Output", pidController.getOutputMin());
-    SmartDashboard.putNumber("Sh Min Output", pidController.getOutputMax());
+    
+    pidController.setSmartMotionMaxVelocity(700, 0);
+    pidController.setSmartMotionMinOutputVelocity(0, 0);
+    pidController.setSmartMotionMaxAccel(350, 0);
+    pidController.setSmartMotionAllowedClosedLoopError(.5, 0);
   }
 
   /** Parse input from a controller and handle the different control modes */
@@ -144,12 +140,12 @@ public class Shoulder extends SubsystemBase {
 
   /** Raises the shoulder by a small amount, determined by the set conversion factor */
   public void raiseShoulder() {
-    this.goalPosition++;
+    this.goalPosition += .05;
   }
 
   /** Lowers the shoulder by a small amount, determined by the set conversion factor */
   public void lowerShoulder() {
-    this.goalPosition--;
+    this.goalPosition -= .05;
   }
 
   /**
@@ -185,12 +181,6 @@ public class Shoulder extends SubsystemBase {
   }
 
   public void smartMotionPeriodic() {
-    // pidController.setP(SmartDashboard.getNumber("Sh P Gain", pidController.getP()));
-    // pidController.setI(SmartDashboard.getNumber("Sh I Gain", pidController.getI()));
-    // pidController.setD(SmartDashboard.getNumber("Sh D Gain", pidController.getD()));
-    // pidController.setIZone(SmartDashboard.getNumber("Sh I Zone", pidController.getIZone()));
-    // pidController.setFF(SmartDashboard.getNumber("Sh Feed Forward", pidController.getFF()));
-
     if (this.goalPosition < minPosition && this.isFullyDown()) {
       this.goalPosition = minPosition;
       this.encoder.setPosition(minPosition);
@@ -199,7 +189,7 @@ public class Shoulder extends SubsystemBase {
     // Bound our goal position to something realistic
     this.goalPosition = this.ensurePositionInRange(this.goalPosition);
 
-    this.pidController.setReference(this.goalPosition, ControlType.kPosition);
+    this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
   }
 
   /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */

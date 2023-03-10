@@ -25,15 +25,15 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
   @Override
   public double getShoulderModifier() {
     // Duplicate with ZERO
-    if (this.getPOV() == 180) {
-      return -1;
-    }
-    if (this.getPOV() == 0) {
-      return 1;
-    }
-    return 0;
+    // if (this.getPOV() == 180) {
+    //   return -1;
+    // }
+    // if (this.getPOV() == 0) {
+    //   return 1;
+    // }
+    // return 0;
     // Negate so that pushing stick away from you is +, meaning raise the arm
-    // return -this.handleDeadband(this.getRightY(), this.deadzone);
+    return -this.handleDeadband(this.getRightY(), this.deadzone);
   }
 
   @Override

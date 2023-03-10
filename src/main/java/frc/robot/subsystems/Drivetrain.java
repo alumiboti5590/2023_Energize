@@ -328,8 +328,8 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Left Distance Meters", getLeftDistanceFeet());
-    SmartDashboard.putNumber("Right Distance Meters", getRightDistanceFeet());
+    SmartDashboard.putNumber("L Drive", getLeftDistanceFeet());
+    SmartDashboard.putNumber("R Drive", getRightDistanceFeet());
     SmartDashboard.putNumber("Heading", getHeadingDegrees());
   }
 }

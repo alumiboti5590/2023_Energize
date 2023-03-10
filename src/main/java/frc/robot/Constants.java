@@ -95,8 +95,7 @@ public final class Constants {
   }
 
   public static final class Shoulder {
-    // TODO: starting with a high number to ensure we dont drive the thing through itself
-    public static final double ENCODER_CONVERSION_FACTOR = 5.0;
+    public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
     public static final double PERCENTAGE_MAX = .5;
     public static final double PERCENTAGE_MIN = -.2;
@@ -105,11 +104,11 @@ public final class Constants {
     public static final double FORWARD_FEED_UPWARDS = .2;
 
     public static final double MIN_POSITION = 0;
-    public static final double HALFWAY = 25;
-    public static final double SAFE_MAX = 40;
-    public static final double MAX_POSITION = 50;
+    public static final double HALFWAY = 3.5;
+    public static final double SAFE_MAX = 13;
+    public static final double MAX_POSITION = 13.4;
 
     // public static final Gains PID = new Gains(2, 0.00020, 20, 0, 0, 0);
-    public static final Gains PID = new Gains(.125, 0.00000, .30, 0, 0, 0);
+    public static final Gains PID = new Gains(5e-5, 1e-6, 0.0, 0.000156, 0, 0);
   }
 }
