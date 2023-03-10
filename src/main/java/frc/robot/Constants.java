@@ -79,20 +79,34 @@ public final class Constants {
   }
 
   public static final class Arm {
-    public static final double ENCODER_CONVERSION_FACTOR = 0.0;
+    // TODO: starting with a high number to ensure we dont drive the thing through itself
+    public static final double ENCODER_CONVERSION_FACTOR = 5.0;
+
+    public static final double MIN_POSITION = 0;
+    public static final double MAX_POSITION = 119;
+
+    public static final double PERCENTAGE_MAX = .3;
+    public static final double PERCENTAGE_MIN = -.3;
+
+    public static final Gains PID = new Gains(.125, 0.00000, 10, 0, 0, 0);
   }
 
   public static final class Shoulder {
     // TODO: starting with a high number to ensure we dont drive the thing through itself
-    public static final double ENCODER_CONVERSION_FACTOR = 10.0;
+    public static final double ENCODER_CONVERSION_FACTOR = 5.0;
 
-    public static final double OPEN_PERCENTAGE_MAX = .5;
-    public static final double OPEN_PERCENTAGE_MIN = -.2;
+    public static final double PERCENTAGE_MAX = .5;
+    public static final double PERCENTAGE_MIN = -.2;
 
     // TODO: This needs to be tested
     public static final double FORWARD_FEED_UPWARDS = .2;
 
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 100;
+    public static final double HALFWAY = 25;
+    public static final double SAFE_MAX = 40;
+    public static final double MAX_POSITION = 50;
+
+    // public static final Gains PID = new Gains(2, 0.00020, 20, 0, 0, 0);
+    public static final Gains PID = new Gains(.125, 0.00000, .30, 0, 0, 0);
   }
 }

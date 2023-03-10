@@ -11,11 +11,13 @@ import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
 import frc.robot.controllers.XboxOperatorController;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Grabber;
 import frc.robot.subsystems.Grabber.GrabMode;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Shoulder.ShoulderPosition;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -32,6 +34,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private Drivetrain drivetrain;
+  private Arm arm;
   private Grabber grabber;
   private Intake intake;
   private Shoulder shoulder;
@@ -58,7 +61,8 @@ public class RobotContainer {
   /** Initialize subsystems across the robot */
   private void configureSubsystems() {
     this.drivetrain = new Drivetrain();
-    // this.arm = new Arm();
+    this.arm = new Arm();
+    this.grabber = new Grabber();
     this.intake = new Intake();
     this.shoulder = new Shoulder();
   }
@@ -74,12 +78,46 @@ public class RobotContainer {
             Constants.Controller.OPERATOR_CONTROLLER_PORT,
             Constants.Controller.XBOX_CONTROLLER_DEADBAND);
 
+    // ----------------------------
+    // Operator Controller Bindings
+    // ----------------------------
+
+    // Grabber Controls
+    // ~~~~~~~~~~~~~~~~
     operatorController
         .getGrabOpen()
         .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
     operatorController
         .getGrabClose()
         .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
+
+    // Shoulder Controls
+    // ~~~~~~~~~~~~~~~~~
+
+    operatorController
+        .getShoulderZero()
+        .whileTrue(
+            new RunCommand(
+                () -> this.shoulder.setGoalPosition(ShoulderPosition.ZERO), this.shoulder));
+
+    operatorController
+        .getShoulderHalfway()
+        .whileTrue(
+            new RunCommand(
+                () -> this.shoulder.setGoalPosition(ShoulderPosition.HALFWAY), this.shoulder));
+    operatorController
+        .getShoulderMax()
+        .whileTrue(
+            new RunCommand(
+                () -> this.shoulder.setGoalPosition(ShoulderPosition.MAX), this.shoulder));
+
+    operatorController
+        .getShoulderZeroMode()
+        .whileTrue(new RunCommand(() -> this.shoulder.startZeroingMode(), this.shoulder));
+
+    operatorController
+        .getArmZeroMode()
+        .whileTrue(new RunCommand(() -> this.arm.startZeroingMode(), this.arm));
   }
 
   /**
@@ -88,12 +126,17 @@ public class RobotContainer {
    */
   private void configureDefaultCommands() {
     // Allows for dynamically controlling the drivetrain with the drive controller
+    // using the two sticks in either Tank Drive or Arcade drive mode
     this.drivetrain.setDefaultCommand(
         new RunCommand(() -> drivetrain.controllerDrive(driverController), drivetrain));
 
     // Runs the intake at the percentage given by the controller
     this.intake.setDefaultCommand(
         new RunCommand(() -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()), intake));
+
+    // Allows the operator controller to modify and adjust the arm position in small increments
+    this.arm.setDefaultCommand(
+        new RunCommand(() -> arm.controllerAction(operatorController.getArmModifier()), arm));
 
     // Allows the operator controller to modify and adjust the arm position in small increments
     this.shoulder.setDefaultCommand(

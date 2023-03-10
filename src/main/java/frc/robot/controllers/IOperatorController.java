@@ -16,4 +16,16 @@ public interface IOperatorController {
   public double getIntakeSpeed();
 
   public double getShoulderModifier();
+
+  public double getArmModifier();
+
+  public Trigger getShoulderZero();
+
+  public Trigger getShoulderHalfway();
+
+  public Trigger getShoulderMax();
+
+  public Trigger getArmZeroMode();
+
+  public Trigger getShoulderZeroMode();
 }

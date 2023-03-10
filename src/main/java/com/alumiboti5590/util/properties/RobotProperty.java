@@ -47,8 +47,8 @@ public enum RobotProperty {
   // Arm properties
   // -----------------
   ARM_MOTOR_ID(Integer.class),
-  ARM_MOTOR_BRUSHLESS(Boolean.class),
   ARM_MOTOR_INVERT(Integer.class),
+  ARM_LIMIT_SWITCH_DIO(Integer.class),
 
   // -----------------
   // Intake properties
@@ -61,6 +61,7 @@ public enum RobotProperty {
   // -------------------
   SHOULDER_MOTOR_ID(Integer.class),
   SHOULDER_MOTOR_INVERT(Boolean.class),
+  SHOULDER_LIMIT_SWITCH_DIO(Integer.class),
 
   // ------------------
   // Grabber properties

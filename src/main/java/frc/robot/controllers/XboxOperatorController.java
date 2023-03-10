@@ -11,14 +11,34 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
 
   @Override
   public double getIntakeSpeed() {
+    if (this.getLeftTriggerAxis() > 0) {
+      return this.getLeftTriggerAxis();
+    }
+    if (this.getRightTriggerAxis() > 0) {
+      return -this.getRightTriggerAxis();
+    }
+    return 0;
     // A positive (towards user) is input, which kinda makes sense
-    return this.handleDeadband(this.getLeftY(), this.deadzone);
+    // return this.handleDeadband(this.getLeftY(), this.deadzone);
   }
 
   @Override
   public double getShoulderModifier() {
+    // Duplicate with ZERO
+    if (this.getPOV() == 180) {
+      return -1;
+    }
+    if (this.getPOV() == 0) {
+      return 1;
+    }
+    return 0;
     // Negate so that pushing stick away from you is +, meaning raise the arm
-    return -this.handleDeadband(this.getRightY(), this.deadzone);
+    // return -this.handleDeadband(this.getRightY(), this.deadzone);
+  }
+
+  @Override
+  public double getArmModifier() {
+    return -this.handleDeadband(this.getLeftY(), this.deadzone);
   }
 
   @Override
@@ -29,5 +49,30 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
   @Override
   public Trigger getGrabClose() {
     return new Trigger(this::getRightBumper);
+  }
+
+  @Override
+  public Trigger getShoulderHalfway() {
+    return new Trigger(this::getXButton);
+  }
+
+  @Override
+  public Trigger getShoulderMax() {
+    return new Trigger(this::getBButton);
+  }
+
+  @Override
+  public Trigger getShoulderZero() {
+    return new Trigger(this::getAButton);
+  }
+
+  @Override
+  public Trigger getArmZeroMode() {
+    return new Trigger(this::getStartButton);
+  }
+
+  @Override
+  public Trigger getShoulderZeroMode() {
+    return new Trigger(this::getBackButton);
   }
 }

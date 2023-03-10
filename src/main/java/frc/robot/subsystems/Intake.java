@@ -27,6 +27,7 @@ public class Intake extends SubsystemBase {
 
   public Intake() {
     this.intakeMotor = new WPI_TalonSRX(RobotProperty.INTAKE_MOTOR_ID.getInteger());
+    this.intakeMotor.configFactoryDefault();
     this.intakeMotor.setNeutralMode(NeutralMode.Brake);
     this.intakeMotor.setInverted(RobotProperty.INTAKE_MOTOR_INVERT.getBoolean());
 
@@ -69,10 +70,10 @@ public class Intake extends SubsystemBase {
     this.intakeMotor.setSensorPhase(Constants.Intake.Encoder.INVERT_PHASE);
 
     // Config the peak and nominal outputs
-    this.intakeMotor.configNominalOutputForward(0, Constants.Intake.Encoder.TIMEOUT_MS);
-    this.intakeMotor.configNominalOutputReverse(0, Constants.Intake.Encoder.TIMEOUT_MS);
-    this.intakeMotor.configPeakOutputForward(1, Constants.Intake.Encoder.TIMEOUT_MS);
-    this.intakeMotor.configPeakOutputReverse(-1, Constants.Intake.Encoder.TIMEOUT_MS);
+    // this.intakeMotor.configNominalOutputForward(0, Constants.Intake.Encoder.TIMEOUT_MS);
+    // this.intakeMotor.configNominalOutputReverse(0, Constants.Intake.Encoder.TIMEOUT_MS);
+    // this.intakeMotor.configPeakOutputForward(1, Constants.Intake.Encoder.TIMEOUT_MS);
+    // this.intakeMotor.configPeakOutputReverse(-1, Constants.Intake.Encoder.TIMEOUT_MS);
 
     // Config the Velocity closed loop gains in slot0
     this.intakeMotor.config_kF(
