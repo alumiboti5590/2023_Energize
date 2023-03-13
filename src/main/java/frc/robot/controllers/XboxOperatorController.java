@@ -38,7 +38,7 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
 
   @Override
   public double getArmModifier() {
-    return -this.handleDeadband(this.getLeftY(), this.deadzone);
+    return -this.handleDeadband(this.getLeftY(), this.deadzone) / 5;
   }
 
   @Override

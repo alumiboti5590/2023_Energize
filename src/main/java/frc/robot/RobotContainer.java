@@ -64,7 +64,28 @@ public class RobotContainer {
     this.arm = new Arm();
     this.grabber = new Grabber();
     this.intake = new Intake();
-    this.shoulder = new Shoulder();
+
+    // Prevent the shoulder from moving if the arm is extended more than
+    // the percentage in the function.
+    Shoulder.ShoulderCanMove canMoveShoulder =
+        () -> arm.percentageExtended() < .30; // 20% more extended leads to not lifting
+
+    // Determines how much dynamic feed forward multiplier to add to the shoulder.
+    // When the arm is extended, we require much more "push" to keep it raised.
+    Shoulder.ShoulderFeedForwardMultiplier ffMultiplier =
+        () -> {
+          double armPercent = arm.percentageExtended();
+          if (armPercent < .3) {
+            return 1;
+          } else if (armPercent < .6) {
+            return 1.5;
+          } else if (armPercent < .8) {
+            return 2;
+          } else {
+            return 2.5;
+          }
+        };
+    this.shoulder = new Shoulder(canMoveShoulder, ffMultiplier);
   }
 
   /** Configure trigger & axis bindings between the robot and the controllers */

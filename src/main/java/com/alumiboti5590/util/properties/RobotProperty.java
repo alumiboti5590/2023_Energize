@@ -65,6 +65,11 @@ public enum RobotProperty {
   SHOULDER_MOTOR_INVERT(Boolean.class),
   SHOULDER_LIMIT_SWITCH_DIO(Integer.class),
 
+  SHOULDER_BRAKE_SOLENOID_A(Integer.class),
+  SHOULDER_BRAKE_SOLENOID_B(Integer.class),
+
+  SHOULDER_BRAKE_INVERT(Boolean.class),
+
   // ------------------
   // Grabber properties
   // ------------------

@@ -31,6 +31,8 @@ public class Arm extends SubsystemBase {
   private DigitalInput lowerLimitSwitch;
 
   private double goalPosition = 0,
+      lastGoalPosition = 0,
+      currentPosition = 0,
       minPosition = 0,
       maxPosition = 0,
       minPercentage = 0,
@@ -71,6 +73,11 @@ public class Arm extends SubsystemBase {
     pidController.setIZone(pidGains.kIzone);
     pidController.setFF(pidGains.kF);
     pidController.setOutputRange(Constants.Arm.PERCENTAGE_MIN, Constants.Arm.PERCENTAGE_MAX);
+
+    pidController.setSmartMotionMaxVelocity(800, 0);
+    pidController.setSmartMotionMinOutputVelocity(0, 0);
+    pidController.setSmartMotionMaxAccel(400, 0);
+    pidController.setSmartMotionAllowedClosedLoopError(.1, 0);
   }
 
   /** Parse input from a controller and handle the different control modes */
@@ -114,12 +121,12 @@ public class Arm extends SubsystemBase {
 
   /** Raises the shoulder by a small amount, determined by the set conversion factor */
   public void extendArm() {
-    this.goalPosition++;
+    this.goalPosition+=.15;
   }
 
   /** Lowers the shoulder by a small amount, determined by the set conversion factor */
   public void retractArm() {
-    this.goalPosition--;
+    this.goalPosition-= .15;
   }
 
   /** Control the arm via percentage speed of [-1, 1] */
@@ -152,12 +159,18 @@ public class Arm extends SubsystemBase {
 
     // Bound our goal position to something realistic
     this.goalPosition = this.ensurePositionInRange(this.goalPosition);
-    this.pidController.setReference(this.goalPosition, ControlType.kPosition);
+
+    if (goalPosition != lastGoalPosition) {
+      this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
+    }
+    this.lastGoalPosition = goalPosition;
   }
 
   /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */
   @Override
   public void periodic() {
+    this.currentPosition = this.encoder.getPosition();
+
     if (controlModeChooser.getSelected() == ControlMode.CLOSED) {
       this.smartMotionPeriodic();
     }
@@ -178,13 +191,17 @@ public class Arm extends SubsystemBase {
     this.goalPosition = minPosition;
   }
 
+  public double percentageExtended() {
+    return this.currentPosition / maxPosition;
+  }
+
   public boolean isFullyRetracted() {
     return this.lowerLimitSwitch.get();
   }
 
   /** Keep the SmartDashboard updated */
   public void updateSmartDashboard() {
-    SmartDashboard.putNumber("Arm Position", this.encoder.getPosition());
+    SmartDashboard.putNumber("Arm Position", currentPosition);
     SmartDashboard.putNumber("Arm Goal", this.goalPosition);
     SmartDashboard.putNumber("Arm Power", this.motor.getAppliedOutput());
     SmartDashboard.putBoolean("Arm Fully Down", this.lowerLimitSwitch.get());

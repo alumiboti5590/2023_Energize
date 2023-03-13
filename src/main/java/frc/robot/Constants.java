@@ -83,15 +83,15 @@ public final class Constants {
 
   public static final class Arm {
     // TODO: starting with a high number to ensure we dont drive the thing through itself
-    public static final double ENCODER_CONVERSION_FACTOR = 5.0;
+    public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 119;
+    public static final double MAX_POSITION = 22.25;
 
-    public static final double PERCENTAGE_MAX = .3;
-    public static final double PERCENTAGE_MIN = -.3;
+    public static final double PERCENTAGE_MAX = .6;
+    public static final double PERCENTAGE_MIN = -.6;
 
-    public static final Gains PID = new Gains(.125, 0.00000, 10, 0, 0, 0);
+    public static final Gains PID = new Gains(5e-5, 1e-6, 0, 0, 0, 0);
   }
 
   public static final class Shoulder {
