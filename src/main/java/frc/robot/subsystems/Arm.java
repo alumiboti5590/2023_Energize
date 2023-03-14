@@ -121,12 +121,12 @@ public class Arm extends SubsystemBase {
 
   /** Raises the shoulder by a small amount, determined by the set conversion factor */
   public void extendArm() {
-    this.goalPosition+=.15;
+    this.goalPosition += .15;
   }
 
   /** Lowers the shoulder by a small amount, determined by the set conversion factor */
   public void retractArm() {
-    this.goalPosition-= .15;
+    this.goalPosition -= .15;
   }
 
   /** Control the arm via percentage speed of [-1, 1] */
@@ -197,6 +197,31 @@ public class Arm extends SubsystemBase {
 
   public boolean isFullyRetracted() {
     return this.lowerLimitSwitch.get();
+  }
+
+  /**
+   * Prevent the shoulder from moving if the arm is extended more than the percentage in the
+   * function.
+   */
+  public boolean armExtendedToUnsafeMoveDistance() {
+    return this.percentageExtended() < .30;
+  }
+
+  /**
+   * Determines how much dynamic feed forward multiplier to add to the shoulder. When the arm is
+   * extended, we require much more "push" to keep it raised.
+   */
+  public double getShoulderFeedForwardMultiplier() {
+    double armPercent = this.percentageExtended();
+    if (armPercent < .3) {
+      return 1;
+    } else if (armPercent < .6) {
+      return 1.5;
+    } else if (armPercent < .8) {
+      return 2;
+    } else {
+      return 2.5;
+    }
   }
 
   /** Keep the SmartDashboard updated */

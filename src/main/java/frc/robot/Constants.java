@@ -72,7 +72,7 @@ public final class Constants {
     // PID Gains may have to be adjusted based on the responsiveness of control loop.
     // kF: 1023 represents output value to Talon at 100%, 7200 represents Velocity units at 100%
     // output
-    public static final Gains PID_GAINS = new Gains(0.25, 0.001, 20, 1023.0 / 7200.0, 300, 1.00);
+    public static final Gains PID_GAINS = new Gains(0.35, 0.001, 200, 1023.0 / 7200.0, 300, 1.00);
 
     // See the following URL to determine these values
     // https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages/blob/master/Java%20General/VelocityClosedLoop/src/main/java/frc/robot/Robot.java#L132-L139
@@ -100,8 +100,11 @@ public final class Constants {
     public static final double PERCENTAGE_MAX = .5;
     public static final double PERCENTAGE_MIN = -.2;
 
-    // TODO: This needs to be tested
-    public static final double FORWARD_FEED_UPWARDS = .2;
+    public static final double FORWARD_FEED_UPWARDS = .2,
+        ZEROING_SPEED = -.3,
+        UPWARDS_ADDITIONAL_GOAL = .75,
+        UPWARD_ERROR_TOLERANCE = .5,
+        DOWNWARD_ERROR_TOLERANCE = .2;
 
     public static final double MIN_POSITION = 0;
     public static final double HALFWAY = 3.5;
@@ -109,6 +112,6 @@ public final class Constants {
     public static final double MAX_POSITION = 13.4;
 
     // public static final Gains PID = new Gains(2, 0.00020, 20, 0, 0, 0);
-    public static final Gains PID = new Gains(5e-5, 1e-6, 0.0, 0.000156, 0, 0);
+    public static final Gains PID = new Gains(5e-5, 1e-6, 0.0, 0.000356, 0, 0);
   }
 }

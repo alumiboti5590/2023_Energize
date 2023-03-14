@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.HashMap;
-
 import com.alumiboti5590.util.pid.Gains;
 import com.alumiboti5590.util.properties.RobotProperty;
 import com.revrobotics.CANSparkMax;
@@ -18,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import java.util.HashMap;
 
 public class Shoulder extends SubsystemBase {
 
@@ -48,7 +47,9 @@ public class Shoulder extends SubsystemBase {
   }
 
   public enum Direction {
+    ACTIVE_UPWARDS,
     UPWARD,
+    INITIATE_DOWNWARD,
     DOWNWARD,
     HOLD,
   }
@@ -84,7 +85,8 @@ public class Shoulder extends SubsystemBase {
       maxPosition = 0,
       minPercentage = 0,
       maxPercentage = 0,
-      feedForwardMult = 1;
+      feedForwardMult = 1,
+      initiateDownwardCounts = 0;
 
   ShoulderCanMove canMoveCheck;
   ShoulderFeedForwardMultiplier feedForwardMultCheck;
@@ -106,11 +108,12 @@ public class Shoulder extends SubsystemBase {
 
     this.lowerLimitSwitch = new DigitalInput(RobotProperty.SHOULDER_LIMIT_SWITCH_DIO.getInteger());
 
-    this.mechanicalBrake = new DoubleSolenoid(
-      PneumaticsModuleType.REVPH,
-      RobotProperty.SHOULDER_BRAKE_SOLENOID_A.getInteger(),
-      RobotProperty.SHOULDER_BRAKE_SOLENOID_B.getInteger());
-    
+    this.mechanicalBrake =
+        new DoubleSolenoid(
+            PneumaticsModuleType.REVPH,
+            RobotProperty.SHOULDER_BRAKE_SOLENOID_A.getInteger(),
+            RobotProperty.SHOULDER_BRAKE_SOLENOID_B.getInteger());
+
     // Invert if open & close is backwards
     if (RobotProperty.SHOULDER_BRAKE_INVERT.getBoolean()) {
       BRAKE_MODE = DoubleSolenoid.Value.kReverse;
@@ -211,7 +214,7 @@ public class Shoulder extends SubsystemBase {
   /** Control the arm via percentage speed of [-1, 1] */
   public void percentageControl(double desiredInput) {
     this.mechanicalBrake.set(COAST_MODE);
-  
+
     // When going down, we dont really need power
     if (desiredInput < 0) {
       desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
@@ -223,8 +226,9 @@ public class Shoulder extends SubsystemBase {
     this.motor.set(desiredInput);
   }
 
+  /** When ZEROING, drive the shoulder down until the limit switch is set */
   public void performZeroing() {
-    this.motor.set(-.3);
+    this.motor.set(Constants.Shoulder.ZEROING_SPEED);
     if (isFullyDown()) {
       this.zero();
       this.motor.set(0);
@@ -232,12 +236,21 @@ public class Shoulder extends SubsystemBase {
     }
   }
 
+  /**
+   * This is called on every periodic iteration where Position Mode is enabled. It is responsible
+   * for setting the motor PID controller position and determining _what_ the motors / controller
+   * actually should be doing.
+   */
   public void smartMotionPeriodic() {
+    // If we are against the limit switch, then reset the position to
+    // be at the minimum so we don't break the robot
     if (this.goalPosition < minPosition && this.isFullyDown()) {
       this.goalPosition = minPosition;
       this.encoder.setPosition(minPosition);
     }
 
+    // The forward feed is applied to ensure the motor has enough power
+    // to lift the arm when close to the goal.
     double newFeedForwardMult = this.feedForwardMultCheck.op();
     double newFeedForward = newFeedForwardMult * Constants.Shoulder.PID.kF;
     if (newFeedForwardMult != feedForwardMult) {
@@ -247,39 +260,86 @@ public class Shoulder extends SubsystemBase {
     // Bound our goal position to something realistic
     this.goalPosition = this.ensurePositionInRange(this.goalPosition);
 
+    // If the goal position has changed since last iteration, we
+    // are trying to go somewhere new
     if (goalPosition != this.lastGoalPosition) {
-      this.direction = goalPosition > lastGoalPosition ? Direction.UPWARD : Direction.DOWNWARD;
-    }
-
-    double offBy = Math.abs(this.currentPosition - this.goalPosition);
-    double errorTolerance = .5; // [0, ~14]
-    boolean aboveGoal = currentPosition > goalPosition;
-
-    if (direction == Direction.UPWARD && aboveGoal && offBy <= errorTolerance) {
-      direction = Direction.HOLD;
-    }
-
-    if (direction == Direction.DOWNWARD && !aboveGoal && offBy <= errorTolerance) {
-      direction = Direction.HOLD;
-    }
-
-    // Either HOLD or let the robot move
-    if (currentMode == ControlMode.ZEROING) {
-      this.mechanicalBrake.set(COAST_MODE);
-    }
-    if (direction == Direction.HOLD) {
-      this.mechanicalBrake.set(BRAKE_MODE);
-      this.motor.set(newFeedForward);
-    } else {
-      this.mechanicalBrake.set(COAST_MODE);
-
-      boolean canUpdateRef = this.canMoveCheck != null && this.canMoveCheck.op();
-      if (goalPosition != lastGoalPosition && canUpdateRef) {
-        this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
+      // We are trying to go upwards
+      if (goalPosition > lastGoalPosition) {
+        this.direction = Direction.UPWARD;
+        // We are trying to go down, but we need to drive the motor
+        // upwards a bit to disengage the mechanical brake
+      } else if (this.direction != Direction.DOWNWARD) {
+        this.direction = Direction.INITIATE_DOWNWARD;
+        this.initiateDownwardCounts = 0;
       }
     }
 
-    this.lastGoalPosition = goalPosition;
+    double localGoalPosition = this.goalPosition;
+
+    // If we are going upwards, just add a bit to "overdrive" the motor to get
+    // there and allow the mechanical brake to lock
+    if (this.direction == Direction.UPWARD) {
+      localGoalPosition += Constants.Shoulder.UPWARDS_ADDITIONAL_GOAL;
+    }
+
+    // Determine our error + error tolerance so we know how close we are to
+    // switching into the HOLD mode, which engages the mechanical brake
+    double offBy = Math.abs(this.currentPosition - localGoalPosition);
+    double errorTolerance = .2; // [0, ~14]
+    if (direction == Direction.UPWARD) {
+      errorTolerance = Constants.Shoulder.UPWARD_ERROR_TOLERANCE;
+    } else if (direction == Direction.DOWNWARD) {
+      errorTolerance = Constants.Shoulder.DOWNWARD_ERROR_TOLERANCE;
+    }
+
+    boolean aboveGoal = currentPosition > goalPosition;
+
+    // If we are moving upward and are above the goal, then we can engage the
+    // mechanical brake and give the motor a rest
+    if ((direction == Direction.UPWARD) && aboveGoal && offBy <= errorTolerance) {
+      direction = Direction.HOLD;
+    }
+
+    // When ZEROING, just let the PID controller follow the current arm position
+    // so that we can drive it via a set speed until we hit the limit switch
+    if (currentMode == ControlMode.ZEROING) {
+      this.mechanicalBrake.set(COAST_MODE);
+      this.pidController.setReference(currentPosition, ControlType.kSmartMotion);
+    }
+
+    switch (direction) {
+      case HOLD:
+        // When HOLDing, set the mechanical brake and add some feed-forward
+        // to allow the motor to ensure the arm doesn't move.
+        this.mechanicalBrake.set(BRAKE_MODE);
+        this.motor.set(newFeedForward);
+        break;
+      case INITIATE_DOWNWARD:
+        // When we _start_ going downwards, drive the motor up a short amount
+        // and allow the mechanical brake to disengage properly before driving down
+        this.mechanicalBrake.set(COAST_MODE);
+        this.motor.set(.4);
+        if (initiateDownwardCounts > 5) {
+          this.motor.set(0);
+          this.pidController.setReference(goalPosition, ControlType.kSmartMotion);
+          this.direction = Direction.DOWNWARD;
+        }
+        initiateDownwardCounts++;
+        break;
+      default:
+        // When going UP or DOWN, just update the arm position and let it cruise
+        this.mechanicalBrake.set(COAST_MODE);
+
+        boolean canUpdateRef = this.canMoveCheck != null && this.canMoveCheck.op();
+        if (localGoalPosition != lastGoalPosition && canUpdateRef) {
+          this.pidController.setReference(localGoalPosition, ControlType.kSmartMotion);
+        }
+        break;
+    }
+
+    // Update the last goal position so we have it to reference
+    // on the next iteration
+    this.lastGoalPosition = this.goalPosition;
   }
 
   public void setBrakeMode(boolean braking) {
@@ -323,6 +383,7 @@ public class Shoulder extends SubsystemBase {
   public void updateSmartDashboard() {
     HashMap<Direction, String> directions = new HashMap<Direction, String>();
     directions.put(Direction.UPWARD, "Upwards");
+    directions.put(Direction.INITIATE_DOWNWARD, "Init Downward");
     directions.put(Direction.DOWNWARD, "Downwards");
     directions.put(Direction.HOLD, "Hold");
 
