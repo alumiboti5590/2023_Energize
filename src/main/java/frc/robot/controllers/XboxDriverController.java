@@ -46,7 +46,7 @@ public class XboxDriverController extends CustomXBoxController implements IDrive
   }
 
   @Override
-  public boolean getStraightDrive() {
-    return this.getAButton();
+  public Trigger getStraightDrive() {
+    return new Trigger(this::getAButton);
   }
 }

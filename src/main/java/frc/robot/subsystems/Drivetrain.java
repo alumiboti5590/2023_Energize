@@ -7,14 +7,10 @@ package frc.robot.subsystems;
 import com.alumiboti5590.util.Tuple;
 import com.alumiboti5590.util.filters.IInputFilter;
 import com.alumiboti5590.util.filters.PolynomialInputFilter;
-import com.alumiboti5590.util.math.AngleClamp;
-import com.alumiboti5590.util.pid.Gains;
 import com.alumiboti5590.util.properties.RobotProperty;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -30,11 +26,9 @@ public class Drivetrain extends SubsystemBase {
     ARCADE,
     CURVATURE,
     TANK_DRIVE,
-    STRAIGHT
   }
 
   private SendableChooser<DriveType> driveTypeChooser;
-  private DriveType prevDriveType;
 
   private IInputFilter inputFilter1, inputFilter2;
 
@@ -44,8 +38,6 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDrive diffDrive;
 
   private AHRS navX;
-  private PIDController straightDrivePID;
-  private double desiredHeading = 0;
 
   /** Creates a new Drivetrain. */
   public Drivetrain() {
@@ -110,18 +102,11 @@ public class Drivetrain extends SubsystemBase {
     resetOdometry();
     navX.reset();
 
-    // Straight drive uses a PID to determine the 'best' turn rotation
-    // needed to get to the desired heading, and this initializes the PID
-    Gains drivePID = Constants.Drivetrain.STRAIGHT_PID;
-    straightDrivePID = new PIDController(drivePID.kP, drivePID.kI, drivePID.kD);
-    straightDrivePID.enableContinuousInput(-180, 180);
-
     // Set up SmartDashboard drive type changes
     driveTypeChooser = new SendableChooser<>();
     driveTypeChooser.setDefaultOption("Curvature", DriveType.CURVATURE);
     driveTypeChooser.addOption("Arcade", DriveType.ARCADE);
     driveTypeChooser.addOption("Tank Drive", DriveType.TANK_DRIVE);
-    driveTypeChooser.addOption("Straight Drive", DriveType.STRAIGHT);
     SmartDashboard.putData("Drive Type", driveTypeChooser);
   }
 
@@ -169,15 +154,6 @@ public class Drivetrain extends SubsystemBase {
     resetEncoders();
   }
 
-  public void setRelativeDesiredHeading(double relativeHeading) {
-    this.setDesiredHeading(getHeadingDegrees() + relativeHeading);
-  }
-
-  public void setDesiredHeading(double heading) {
-    // we need to make it between [-180, 180]
-    this.desiredHeading = AngleClamp.navXClamp(heading);
-  }
-
   public double getHeadingDegrees() {
     return navX.getYaw();
   }
@@ -197,7 +173,6 @@ public class Drivetrain extends SubsystemBase {
     switch (driveType) {
       case ARCADE:
       case CURVATURE:
-      case STRAIGHT:
         inputs = controller.getArcadeOrCurvatureDriveValues();
         break;
       default:
@@ -217,18 +192,6 @@ public class Drivetrain extends SubsystemBase {
       steeringInput *= -1;
     }
 
-    // If we are holding the 'A' (?) button on the drive controller,
-    // then force the robot to go in a straight line
-    if (controller.getStraightDrive()) {
-      driveType = DriveType.STRAIGHT;
-    }
-
-    // If we are just switching to straight drive, record the navX position
-    // so we know where we want to go
-    if (driveType == DriveType.STRAIGHT && driveType != prevDriveType) {
-      this.desiredHeading = this.getHeadingDegrees();
-    }
-
     // Call the different method appropriate for the desired drive type
     // with the collected controller inputs. See the DriveType enum or
     // the individually called method documentation for more info
@@ -243,12 +206,7 @@ public class Drivetrain extends SubsystemBase {
       case TANK_DRIVE:
         this.tankDrive(inputs.first, inputs.second);
         break;
-      case STRAIGHT:
-        this.straightDrive(inputs.first);
-        break;
     }
-
-    prevDriveType = driveType;
   }
 
   public void arcadeDrive(double speed, double rotation) {
@@ -286,6 +244,11 @@ public class Drivetrain extends SubsystemBase {
       rotation = this.inputFilter2.get(rotation);
     }
 
+    // TODO: test if this is more intuitive or not
+    if (speed < 0) {
+      rotation *= -1;
+    }
+
     diffDrive.curvatureDrive(speed, rotation, isQuickTurn);
   }
 
@@ -304,26 +267,6 @@ public class Drivetrain extends SubsystemBase {
     }
 
     diffDrive.tankDrive(leftSpeed, rightSpeed, false);
-  }
-
-  /**
-   * Given the NavX heading and the desiredHeading variables, this uses the PID controller to keep
-   * the robot in a straight line.
-   */
-  public void straightDrive(double speed) {
-    // Determine a value from the PID controller between the current heading (-180, 180)
-    // and the desired heading.
-    double rawSteering = straightDrivePID.calculate(getHeadingDegrees(), desiredHeading);
-
-    // The robot gets jittery if we allow it to turn TOO fast, so we clamp the max value
-    double absMaxRotation = Constants.Drivetrain.STRAIGHT_MAX_TURN_ROTATION;
-    double clampedSteering = MathUtil.clamp(rawSteering, -absMaxRotation, absMaxRotation);
-
-    // Based on how we mount the NavX / RoboRio, we might need to invert the value
-    if (RobotProperty.DRIVETRAIN_INVERT_STEER_PID.getBoolean()) {
-      clampedSteering *= -1;
-    }
-    diffDrive.arcadeDrive(speed, clampedSteering);
   }
 
   @Override

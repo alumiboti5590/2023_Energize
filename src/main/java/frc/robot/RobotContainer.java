@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.commands.drivetrain.StraightDrive;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
@@ -81,6 +82,15 @@ public class RobotContainer {
             Constants.Controller.OPERATOR_CONTROLLER_PORT,
             Constants.Controller.XBOX_CONTROLLER_DEADBAND);
 
+    // --------------------------
+    // Driver Controller Bindings
+    // --------------------------
+
+    driverController
+        .getStraightDrive()
+        .whileTrue(
+            new StraightDrive(drivetrain, () -> driverController.getTankDriveValues().first));
+
     // ----------------------------
     // Operator Controller Bindings
     // ----------------------------
@@ -89,10 +99,10 @@ public class RobotContainer {
     // ~~~~~~~~~~~~~~~~
     operatorController
         .getGrabOpen()
-        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
+        .whileTrue(run(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
     operatorController
         .getGrabClose()
-        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
+        .whileTrue(run(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
 
     // Shoulder Controls
     // ~~~~~~~~~~~~~~~~~
