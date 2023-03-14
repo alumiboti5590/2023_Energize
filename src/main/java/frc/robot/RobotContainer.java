@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
@@ -64,7 +65,9 @@ public class RobotContainer {
     this.arm = new Arm();
     this.grabber = new Grabber();
     this.intake = new Intake();
-    this.shoulder = new Shoulder();
+
+    this.shoulder =
+        new Shoulder(arm::armExtendedToUnsafeMoveDistance, arm::getShoulderFeedForwardMultiplier);
   }
 
   /** Configure trigger & axis bindings between the robot and the controllers */
@@ -96,28 +99,21 @@ public class RobotContainer {
 
     operatorController
         .getShoulderZero()
-        .whileTrue(
-            new RunCommand(
-                () -> this.shoulder.setGoalPosition(ShoulderPosition.ZERO), this.shoulder));
+        .whileTrue(run(() -> this.shoulder.setGoalPosition(ShoulderPosition.ZERO), this.shoulder));
 
     operatorController
         .getShoulderHalfway()
         .whileTrue(
-            new RunCommand(
-                () -> this.shoulder.setGoalPosition(ShoulderPosition.HALFWAY), this.shoulder));
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.HALFWAY), this.shoulder));
     operatorController
         .getShoulderMax()
-        .whileTrue(
-            new RunCommand(
-                () -> this.shoulder.setGoalPosition(ShoulderPosition.MAX), this.shoulder));
+        .whileTrue(run(() -> this.shoulder.setGoalPosition(ShoulderPosition.MAX), this.shoulder));
 
     operatorController
         .getShoulderZeroMode()
-        .whileTrue(new RunCommand(() -> this.shoulder.startZeroingMode(), this.shoulder));
+        .whileTrue(run(() -> this.shoulder.startZeroingMode(), this.shoulder));
 
-    operatorController
-        .getArmZeroMode()
-        .whileTrue(new RunCommand(() -> this.arm.startZeroingMode(), this.arm));
+    operatorController.getArmZeroMode().whileTrue(run(() -> this.arm.startZeroingMode(), this.arm));
   }
 
   /**
@@ -127,21 +123,17 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     // Allows for dynamically controlling the drivetrain with the drive controller
     // using the two sticks in either Tank Drive or Arcade drive mode
-    this.drivetrain.setDefaultCommand(
-        new RunCommand(() -> drivetrain.controllerDrive(driverController), drivetrain));
+    setDefaultCommand(drivetrain, () -> drivetrain.controllerDrive(driverController));
 
     // Runs the intake at the percentage given by the controller
-    this.intake.setDefaultCommand(
-        new RunCommand(() -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()), intake));
+    setDefaultCommand(intake, () -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()));
 
     // Allows the operator controller to modify and adjust the arm position in small increments
-    this.arm.setDefaultCommand(
-        new RunCommand(() -> arm.controllerAction(operatorController.getArmModifier()), arm));
+    setDefaultCommand(arm, () -> arm.controllerAction(operatorController.getArmModifier()));
 
     // Allows the operator controller to modify and adjust the arm position in small increments
-    this.shoulder.setDefaultCommand(
-        new RunCommand(
-            () -> shoulder.controllerAction(operatorController.getShoulderModifier()), shoulder));
+    setDefaultCommand(
+        shoulder, () -> shoulder.controllerAction(operatorController.getShoulderModifier()));
   }
 
   /**
@@ -162,5 +154,13 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  private RunCommand run(Runnable runnable, Subsystem... subsystem) {
+    return new RunCommand(runnable, subsystem);
+  }
+
+  private void setDefaultCommand(Subsystem subsystem, Runnable runnable) {
+    subsystem.setDefaultCommand(run(runnable, subsystem));
   }
 }
