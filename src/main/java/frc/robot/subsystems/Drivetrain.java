@@ -244,11 +244,6 @@ public class Drivetrain extends SubsystemBase {
       rotation = this.inputFilter2.get(rotation);
     }
 
-    // TODO: test if this is more intuitive or not
-    if (speed < 0) {
-      rotation *= -1;
-    }
-
     diffDrive.curvatureDrive(speed, rotation, isQuickTurn);
   }
 

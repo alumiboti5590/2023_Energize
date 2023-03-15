@@ -37,12 +37,12 @@ public class XboxDriverController extends CustomXBoxController implements IDrive
 
   @Override
   public boolean getCurvatureDriveQuickTurn() {
-    return this.rightBumperTrigger.getAsBoolean();
+    return this.getRightTriggerAxis() > .3;
   }
 
   @Override
   public Trigger getTurboButton() {
-    return this.leftBumperTrigger;
+    return new Trigger(() -> this.getLeftTriggerAxis() > .3);
   }
 
   @Override

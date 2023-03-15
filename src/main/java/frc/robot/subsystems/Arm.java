@@ -74,7 +74,7 @@ public class Arm extends SubsystemBase {
     pidController.setFF(pidGains.kF);
     pidController.setOutputRange(Constants.Arm.PERCENTAGE_MIN, Constants.Arm.PERCENTAGE_MAX);
 
-    pidController.setSmartMotionMaxVelocity(800, 0);
+    pidController.setSmartMotionMaxVelocity(700, 0);
     pidController.setSmartMotionMinOutputVelocity(0, 0);
     pidController.setSmartMotionMaxAccel(400, 0);
     pidController.setSmartMotionAllowedClosedLoopError(.1, 0);
@@ -90,9 +90,16 @@ public class Arm extends SubsystemBase {
     switch (currentMode) {
       case OPEN:
         this.percentageControl(desiredInput);
+        if (desiredInput == 0) {
+          this.currentMode = ControlMode.CLOSED;
+          this.goalPosition = currentPosition;
+        }
         break;
       case CLOSED:
         this.adjustGoalPosition(desiredInput);
+        if (desiredInput != 0) {
+          this.currentMode = ControlMode.OPEN;
+        }
         break;
       case ZEROING:
         this.performZeroing();
@@ -135,6 +142,11 @@ public class Arm extends SubsystemBase {
     if (desiredInput < 0) {
       desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
+
+    if (currentPosition >= maxPosition) {
+      desiredInput = 0;
+    }
+
     if (isFullyRetracted() && desiredInput < 0) {
       desiredInput = 0;
       this.resetEncoder();
@@ -163,6 +175,11 @@ public class Arm extends SubsystemBase {
     if (goalPosition != lastGoalPosition) {
       this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
     }
+
+    if (goalPosition == minPosition) {
+      this.motor.set(isFullyRetracted() ? -.04 : -.1);
+    }
+
     this.lastGoalPosition = goalPosition;
   }
 

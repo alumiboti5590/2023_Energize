@@ -45,7 +45,7 @@ public final class Constants {
       double wheelsDiameterAsCm = DistanceUtility.inchesToCentimeters(WHEEL_DIAMETER_INCHES);
       double beforeGearBoxReduction = 100 / (wheelsDiameterAsCm * Math.PI); // 100 == 100cm to 1 m
       double afterGearBoxReduction = beforeGearBoxReduction / GEAR_BOX_RATIO;
-      return afterGearBoxReduction;
+      return afterGearBoxReduction / 100;
     }
 
     public static final Gains STRAIGHT_PID = new Gains(.05, 0, .1, 0, 0, 0);
@@ -88,8 +88,8 @@ public final class Constants {
     public static final double MIN_POSITION = 0;
     public static final double MAX_POSITION = 22.25;
 
-    public static final double PERCENTAGE_MAX = .6;
-    public static final double PERCENTAGE_MIN = -.6;
+    public static final double PERCENTAGE_MAX = .3;
+    public static final double PERCENTAGE_MIN = -.3;
 
     public static final Gains PID = new Gains(5e-5, 1e-6, 0, 0, 0, 0);
   }
@@ -102,9 +102,9 @@ public final class Constants {
 
     public static final double FORWARD_FEED_UPWARDS = .2,
         ZEROING_SPEED = -.3,
-        UPWARDS_ADDITIONAL_GOAL = .75,
-        UPWARD_ERROR_TOLERANCE = .5,
-        DOWNWARD_ERROR_TOLERANCE = .2;
+        UPWARDS_ADDITIONAL_GOAL = .5,
+        UPWARD_ERROR_TOLERANCE = .2,
+        DOWNWARD_ERROR_TOLERANCE = .1;
 
     public static final double MIN_POSITION = 0;
     public static final double HALFWAY = 3.5;

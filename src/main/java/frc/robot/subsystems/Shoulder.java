@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 public class Shoulder extends SubsystemBase {
 
-  public interface ShoulderCanMove {
+  public interface ArmExtendedCheck {
     public boolean op();
   }
 
@@ -33,7 +33,17 @@ public class Shoulder extends SubsystemBase {
     ZERO(Constants.Shoulder.MIN_POSITION),
     MAX(Constants.Shoulder.MAX_POSITION),
     HALFWAY(Constants.Shoulder.HALFWAY),
-    SAFE_MAX(Constants.Shoulder.SAFE_MAX);
+    SAFE_MAX(Constants.Shoulder.SAFE_MAX),
+
+    COLLECT(1),
+
+    LOW_CUBE(4.3),
+    MED_CUBE(9),
+    HIGH_CUBE(10.5),
+
+    LOW_CONE(7.75),
+    MED_CONE(10.2),
+    HIGH_CONE(12.5);
 
     private final double position;
 
@@ -88,7 +98,7 @@ public class Shoulder extends SubsystemBase {
       feedForwardMult = 1,
       initiateDownwardCounts = 0;
 
-  ShoulderCanMove canMoveCheck;
+  ArmExtendedCheck armExtendedCheck;
   ShoulderFeedForwardMultiplier feedForwardMultCheck;
 
   private SendableChooser<ControlMode> controlModeChooser;
@@ -96,7 +106,7 @@ public class Shoulder extends SubsystemBase {
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
   public Shoulder(
-      ShoulderCanMove canMoveCheck, ShoulderFeedForwardMultiplier feedForwardMultCheck) {
+      ArmExtendedCheck armExtendedCheck, ShoulderFeedForwardMultiplier feedForwardMultCheck) {
     this.motor =
         new CANSparkMax(RobotProperty.SHOULDER_MOTOR_ID.getInteger(), MotorType.kBrushless);
     this.motor.setInverted(RobotProperty.SHOULDER_MOTOR_INVERT.getBoolean());
@@ -148,9 +158,13 @@ public class Shoulder extends SubsystemBase {
     pidController.setSmartMotionMaxAccel(350, 0);
     pidController.setSmartMotionAllowedClosedLoopError(.5, 0);
 
-    this.canMoveCheck = canMoveCheck;
+    this.armExtendedCheck = armExtendedCheck;
 
     this.feedForwardMultCheck = feedForwardMultCheck;
+  }
+
+  public void setMode(ControlMode mode) {
+    this.currentMode = mode;
   }
 
   /** Parse input from a controller and handle the different control modes */
@@ -162,10 +176,18 @@ public class Shoulder extends SubsystemBase {
 
     switch (currentMode) {
       case OPEN:
-        this.percentageControl(desiredInput);
+        this.percentageControl(desiredInput > 0 ? desiredInput : .00001);
+        if (desiredInput == 0) {
+          this.currentMode = ControlMode.CLOSED;
+          this.direction = Direction.HOLD;
+          this.goalPosition = currentPosition;
+        }
         break;
       case CLOSED:
         this.adjustGoalPosition(desiredInput);
+        if (desiredInput > 0) {
+          this.currentMode = ControlMode.OPEN;
+        }
         break;
       case ZEROING:
         this.performZeroing();
@@ -219,11 +241,17 @@ public class Shoulder extends SubsystemBase {
     if (desiredInput < 0) {
       desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
+
+    if (currentPosition >= maxPosition) {
+      desiredInput = 0;
+    }
+
     if (isFullyDown() && desiredInput < 0) {
       desiredInput = 0;
       this.resetEncoder();
     }
     this.motor.set(desiredInput);
+    this.goalPosition = this.encoder.getPosition();
   }
 
   /** When ZEROING, drive the shoulder down until the limit switch is set */
@@ -285,7 +313,7 @@ public class Shoulder extends SubsystemBase {
     // Determine our error + error tolerance so we know how close we are to
     // switching into the HOLD mode, which engages the mechanical brake
     double offBy = Math.abs(this.currentPosition - localGoalPosition);
-    double errorTolerance = .2; // [0, ~14]
+    double errorTolerance; // [0, ~14]
     if (direction == Direction.UPWARD) {
       errorTolerance = Constants.Shoulder.UPWARD_ERROR_TOLERANCE;
     } else if (direction == Direction.DOWNWARD) {
@@ -296,7 +324,7 @@ public class Shoulder extends SubsystemBase {
 
     // If we are moving upward and are above the goal, then we can engage the
     // mechanical brake and give the motor a rest
-    if ((direction == Direction.UPWARD) && aboveGoal && offBy <= errorTolerance) {
+    if ((direction == Direction.UPWARD) && aboveGoal) {
       direction = Direction.HOLD;
     }
 
@@ -306,6 +334,8 @@ public class Shoulder extends SubsystemBase {
       this.mechanicalBrake.set(COAST_MODE);
       this.pidController.setReference(currentPosition, ControlType.kSmartMotion);
     }
+
+    boolean armExtended = this.armExtendedCheck != null && this.armExtendedCheck.op();
 
     switch (direction) {
       case HOLD:
@@ -318,7 +348,7 @@ public class Shoulder extends SubsystemBase {
         // When we _start_ going downwards, drive the motor up a short amount
         // and allow the mechanical brake to disengage properly before driving down
         this.mechanicalBrake.set(COAST_MODE);
-        this.motor.set(.4);
+        this.motor.set(percentageRaised() > .5 ? .6 : .4);
         if (initiateDownwardCounts > 5) {
           this.motor.set(0);
           this.pidController.setReference(goalPosition, ControlType.kSmartMotion);
@@ -330,8 +360,7 @@ public class Shoulder extends SubsystemBase {
         // When going UP or DOWN, just update the arm position and let it cruise
         this.mechanicalBrake.set(COAST_MODE);
 
-        boolean canUpdateRef = this.canMoveCheck != null && this.canMoveCheck.op();
-        if (localGoalPosition != lastGoalPosition && canUpdateRef) {
+        if (localGoalPosition != lastGoalPosition && armExtended) {
           this.pidController.setReference(localGoalPosition, ControlType.kSmartMotion);
         }
         break;

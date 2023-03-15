@@ -15,9 +15,10 @@ public class StraightDrive extends CommandBase {
   }
 
   private Drivetrain drivetrain;
-  private PIDController straightDrivePID;
+  private PIDController straightDrivePID, distanceDrivePID;
   private SpeedGetter speedGetter;
   private double desiredDistance = Double.POSITIVE_INFINITY, desiredHeading;
+  private int withinToleranceCounter = 0;
 
   public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter) {
     this.drivetrain = drivetrain;
@@ -28,6 +29,9 @@ public class StraightDrive extends CommandBase {
     Gains drivePID = Constants.Drivetrain.STRAIGHT_PID;
     straightDrivePID = new PIDController(drivePID.kP, drivePID.kI, drivePID.kD);
     straightDrivePID.enableContinuousInput(-180, 180);
+
+    distanceDrivePID = new PIDController(drivePID.kP, drivePID.kI, drivePID.kD);
+    distanceDrivePID.enableContinuousInput(-.4, .4);
   }
 
   public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter, double desiredDistance) {
@@ -43,7 +47,12 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public void execute() {
-    double speed = this.speedGetter.op();
+    double speed = 0;
+    if (this.speedGetter != null) {
+      speed = this.speedGetter.op();
+    } else {
+      speed = distanceDrivePID.calculate(this.getDistance(), desiredDistance);
+    }
 
     // Determine a value from the PID controller between the current heading (-180, 180)
     // and the desired heading.
@@ -63,10 +72,25 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    double avgDistance = (drivetrain.getLeftDistanceFeet() + drivetrain.getRightDistanceFeet()) / 2;
+    if (desiredDistance == Double.POSITIVE_INFINITY) {
+      return false;
+    }
+    double avgDistance = this.getDistance();
     double errTolerance = 1;
     double offBy = Math.abs(avgDistance - desiredDistance);
-    return desiredDistance != Double.POSITIVE_INFINITY && offBy <= errTolerance;
+    if (offBy <= errTolerance) {
+      withinToleranceCounter++;
+    } else {
+      withinToleranceCounter = 0;
+    }
+
+    return withinToleranceCounter >= 10;
+  }
+
+  public double getDistance() {
+    return drivetrain.getLeftDistanceFeet() == 0
+        ? drivetrain.getRightDistanceFeet()
+        : drivetrain.getLeftDistanceFeet();
   }
 
   @Override
