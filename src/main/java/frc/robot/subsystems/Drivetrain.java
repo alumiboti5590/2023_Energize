@@ -158,6 +158,10 @@ public class Drivetrain extends SubsystemBase {
     return navX.getYaw();
   }
 
+  public double getPitchDegrees() {
+    return navX.getPitch();
+  }
+
   public void resetYaw() {
     navX.reset();
   }

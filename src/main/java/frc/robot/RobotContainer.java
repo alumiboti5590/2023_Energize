@@ -61,7 +61,6 @@ public class RobotContainer {
     // in the SendableChooser
     configureAutoCommands();
 
-    this.grabber.setGrabMode(GrabMode.OPEN);
     this.shoulder.setBrakeMode(false);
   }
 
@@ -229,7 +228,7 @@ public class RobotContainer {
   }
 
   public Command getTestCommand() {
-    return new StraightDrive(drivetrain, null, 4.00);
+    return null;
   }
 
   private RunCommand run(Runnable runnable, Subsystem... subsystem) {

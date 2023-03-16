@@ -14,11 +14,17 @@ public class StraightDrive extends CommandBase {
     public double op();
   }
 
+  public interface IsFinished {
+    public boolean op();
+  }
+
   private Drivetrain drivetrain;
   private PIDController straightDrivePID, distanceDrivePID;
+
   private SpeedGetter speedGetter;
-  private double desiredDistance = Double.POSITIVE_INFINITY, desiredHeading;
-  private int withinToleranceCounter = 0;
+  private IsFinished isFinishedCheck;
+
+  private double desiredHeading;
 
   public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter) {
     this.drivetrain = drivetrain;
@@ -34,9 +40,9 @@ public class StraightDrive extends CommandBase {
     distanceDrivePID.enableContinuousInput(-.4, .4);
   }
 
-  public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter, double desiredDistance) {
+  public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter, IsFinished isFinishedCheck) {
     this(drivetrain, speedGetter);
-    this.desiredDistance = desiredDistance;
+    this.isFinishedCheck = isFinishedCheck;
   }
 
   @Override
@@ -47,12 +53,7 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public void execute() {
-    double speed = 0;
-    if (this.speedGetter != null) {
-      speed = this.speedGetter.op();
-    } else {
-      speed = distanceDrivePID.calculate(this.getDistance(), desiredDistance);
-    }
+    double speed = this.speedGetter.op();
 
     // Determine a value from the PID controller between the current heading (-180, 180)
     // and the desired heading.
@@ -72,19 +73,7 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    if (desiredDistance == Double.POSITIVE_INFINITY) {
-      return false;
-    }
-    double avgDistance = this.getDistance();
-    double errTolerance = 1;
-    double offBy = Math.abs(avgDistance - desiredDistance);
-    if (offBy <= errTolerance) {
-      withinToleranceCounter++;
-    } else {
-      withinToleranceCounter = 0;
-    }
-
-    return withinToleranceCounter >= 10;
+    return this.isFinishedCheck.op();
   }
 
   public double getDistance() {
