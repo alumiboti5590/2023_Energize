@@ -421,6 +421,6 @@ public class Shoulder extends SubsystemBase {
     SmartDashboard.putNumber("Shoulder Power", this.motor.getAppliedOutput());
     SmartDashboard.putString("Shoulder Direction", directions.get(direction));
     SmartDashboard.putBoolean("Shoulder Fully Down", this.lowerLimitSwitch.get());
-    SmartDashboard.putData("Shoulder Mode", controlModeChooser);
+    // SmartDashboard.putData("Shoulder Mode", controlModeChooser);
   }
 }

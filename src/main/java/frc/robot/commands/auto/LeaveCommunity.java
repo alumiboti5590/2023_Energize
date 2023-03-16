@@ -6,10 +6,12 @@ import frc.robot.subsystems.Drivetrain;
 
 public class LeaveCommunity extends SequentialCommandGroup {
 
-  private static final double SPEED = .3;
-  private static final double TIMEOUT = 2;
+  private static final double SPEED = .5;
+  private static final double TIMEOUT = 3;
 
   public LeaveCommunity(Drivetrain drivetrain) {
-    addCommands(new StraightDrive(drivetrain, () -> SPEED).withTimeout(TIMEOUT));
+    addCommands(
+        new JoltIntakeDown(drivetrain)
+            .andThen(new StraightDrive(drivetrain, () -> SPEED).withTimeout(TIMEOUT)));
   }
 }

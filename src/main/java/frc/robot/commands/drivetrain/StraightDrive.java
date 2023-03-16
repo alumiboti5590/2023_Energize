@@ -68,12 +68,15 @@ public class StraightDrive extends CommandBase {
     if (RobotProperty.DRIVETRAIN_INVERT_STEER_PID.getBoolean()) {
       clampedSteering *= -1;
     }
-    this.drivetrain.arcadeDrive(speed, clampedSteering);
+
+    // this.drivetrain.tankDrive(.5, .5);
+    System.out.println(speed);
+    this.drivetrain.curvatureDrive(speed, clampedSteering, false, true, true);
   }
 
   @Override
   public boolean isFinished() {
-    return this.isFinishedCheck.op();
+    return isFinishedCheck != null && this.isFinishedCheck.op();
   }
 
   public double getDistance() {

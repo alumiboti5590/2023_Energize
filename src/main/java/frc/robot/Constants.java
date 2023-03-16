@@ -86,7 +86,7 @@ public final class Constants {
     public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 22.25;
+    public static final double MAX_POSITION = 29.55;
 
     public static final double PERCENTAGE_MAX = .3;
     public static final double PERCENTAGE_MIN = -.3;
