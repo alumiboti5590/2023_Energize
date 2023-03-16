@@ -5,9 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.commands.auto.LeaveCommunity;
 import frc.robot.commands.drivetrain.StraightDrive;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
@@ -210,8 +212,11 @@ public class RobotContainer {
    */
   private void configureAutoCommands() {
     autoChooser = new SendableChooser<>();
-    // TODO: add choices here once we know what autonomous actions we want to
-    // perform
+    autoChooser.setDefaultOption("Do Nothing", run(() -> drivetrain.tankDrive(0, 0), drivetrain));
+    autoChooser.addOption("Leave Community", new LeaveCommunity(this.drivetrain));
+
+    // Place on the dashboard
+    SmartDashboard.putData("Auto Command", autoChooser);
   }
 
   /**
