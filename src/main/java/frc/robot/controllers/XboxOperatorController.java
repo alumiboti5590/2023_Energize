@@ -24,14 +24,6 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
 
   @Override
   public double getShoulderModifier() {
-    // Duplicate with ZERO
-    // if (this.getPOV() == 180) {
-    //   return -1;
-    // }
-    // if (this.getPOV() == 0) {
-    //   return 1;
-    // }
-    // return 0;
     // Negate so that pushing stick away from you is +, meaning raise the arm
     return -this.handleDeadband(this.getRightY(), this.deadzone);
   }
@@ -52,16 +44,6 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
   }
 
   @Override
-  public Trigger getShoulderHalfway() {
-    return new Trigger(this::getXButton);
-  }
-
-  @Override
-  public Trigger getShoulderMax() {
-    return new Trigger(this::getBButton);
-  }
-
-  @Override
   public Trigger getShoulderZero() {
     return new Trigger(this::getAButton);
   }
@@ -74,5 +56,25 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
   @Override
   public Trigger getShoulderZeroMode() {
     return new Trigger(this::getBackButton);
+  }
+
+  @Override
+  public Trigger getLowGoal() {
+    return new Trigger(this::getXButton);
+  }
+
+  @Override
+  public Trigger getMedGoal() {
+    return new Trigger(this::getYButton);
+  }
+
+  @Override
+  public Trigger getHighGoal() {
+    return new Trigger(this::getBButton);
+  }
+
+  @Override
+  public boolean getGoalModifier() {
+    return this.getPOV() == 270;
   }
 }

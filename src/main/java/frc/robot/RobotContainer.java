@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.commands.drivetrain.StraightDrive;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
 import frc.robot.controllers.XboxDriverController;
@@ -57,6 +58,9 @@ public class RobotContainer {
     // 4. Configure the autonomous command to run based on what is selected
     // in the SendableChooser
     configureAutoCommands();
+
+    this.grabber.setGrabMode(GrabMode.OPEN);
+    this.shoulder.setBrakeMode(false);
   }
 
   /** Initialize subsystems across the robot */
@@ -81,6 +85,15 @@ public class RobotContainer {
             Constants.Controller.OPERATOR_CONTROLLER_PORT,
             Constants.Controller.XBOX_CONTROLLER_DEADBAND);
 
+    // --------------------------
+    // Driver Controller Bindings
+    // --------------------------
+
+    driverController
+        .getStraightDrive()
+        .whileTrue(
+            new StraightDrive(drivetrain, () -> driverController.getTankDriveValues().first));
+
     // ----------------------------
     // Operator Controller Bindings
     // ----------------------------
@@ -89,31 +102,85 @@ public class RobotContainer {
     // ~~~~~~~~~~~~~~~~
     operatorController
         .getGrabOpen()
-        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
+        .whileTrue(run(() -> this.grabber.setGrabMode(GrabMode.OPEN), this.grabber));
     operatorController
         .getGrabClose()
-        .whileTrue(new RunCommand(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
+        .whileTrue(run(() -> this.grabber.setGrabMode(GrabMode.CLOSE), this.grabber));
 
     // Shoulder Controls
     // ~~~~~~~~~~~~~~~~~
 
     operatorController
         .getShoulderZero()
-        .whileTrue(run(() -> this.shoulder.setGoalPosition(ShoulderPosition.ZERO), this.shoulder));
+        .and(operatorController::getGoalModifier)
+        .whileTrue(
+            run(
+                () -> {
+                  this.shoulder.setGoalPosition(ShoulderPosition.ZERO);
+                  this.grabber.setGrabMode(GrabMode.CLOSE);
+                },
+                this.shoulder,
+                this.grabber));
 
     operatorController
-        .getShoulderHalfway()
+        .getShoulderZero()
         .whileTrue(
-            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.HALFWAY), this.shoulder));
+            run(
+                () -> {
+                  this.shoulder.setGoalPosition(ShoulderPosition.ZERO);
+                  this.grabber.setGrabMode(GrabMode.OPEN);
+                },
+                this.shoulder,
+                this.grabber));
+
+    // CUBEs
+    // -----
+
     operatorController
-        .getShoulderMax()
-        .whileTrue(run(() -> this.shoulder.setGoalPosition(ShoulderPosition.MAX), this.shoulder));
+        .getLowGoal()
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.LOW_CUBE), this.shoulder));
+    operatorController
+        .getMedGoal()
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.MED_CUBE), this.shoulder));
+    operatorController
+        .getHighGoal()
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.HIGH_CUBE), this.shoulder));
+
+    // CONEs
+    // -----
+
+    operatorController
+        .getLowGoal()
+        .and(operatorController::getGoalModifier)
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.LOW_CONE), this.shoulder));
+    operatorController
+        .getMedGoal()
+        .and(operatorController::getGoalModifier)
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.LOW_CONE), this.shoulder));
+    operatorController
+        .getHighGoal()
+        .and(operatorController::getGoalModifier)
+        .whileTrue(
+            run(() -> this.shoulder.setGoalPosition(ShoulderPosition.LOW_CONE), this.shoulder));
 
     operatorController
         .getShoulderZeroMode()
         .whileTrue(run(() -> this.shoulder.startZeroingMode(), this.shoulder));
 
-    operatorController.getArmZeroMode().whileTrue(run(() -> this.arm.startZeroingMode(), this.arm));
+    operatorController
+        .getArmZeroMode()
+        .whileTrue(
+            run(
+                () -> {
+                  this.grabber.setGrabMode(GrabMode.CLOSE);
+                  this.arm.startZeroingMode();
+                },
+                this.arm));
   }
 
   /**
@@ -154,6 +221,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Command getTestCommand() {
+    return new StraightDrive(drivetrain, null, 4.00);
   }
 
   private RunCommand run(Runnable runnable, Subsystem... subsystem) {

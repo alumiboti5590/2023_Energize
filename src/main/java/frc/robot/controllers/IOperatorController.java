@@ -21,11 +21,15 @@ public interface IOperatorController {
 
   public Trigger getShoulderZero();
 
-  public Trigger getShoulderHalfway();
-
-  public Trigger getShoulderMax();
-
   public Trigger getArmZeroMode();
 
   public Trigger getShoulderZeroMode();
+
+  public Trigger getLowGoal();
+
+  public Trigger getMedGoal();
+
+  public Trigger getHighGoal();
+
+  public boolean getGoalModifier();
 }
