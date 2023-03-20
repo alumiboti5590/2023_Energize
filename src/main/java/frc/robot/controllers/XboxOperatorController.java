@@ -75,6 +75,16 @@ public class XboxOperatorController extends CustomXBoxController implements IOpe
 
   @Override
   public boolean getGoalModifier() {
-    return this.getPOV() == 270;
+    return this.getModifier();
+  }
+
+  @Override
+  public boolean getShoulderSafetyOverride() {
+    return this.getModifier();
+  }
+
+  private boolean getModifier() {
+    double pov = this.getPOV();
+    return pov > 225 && pov < 315;
   }
 }

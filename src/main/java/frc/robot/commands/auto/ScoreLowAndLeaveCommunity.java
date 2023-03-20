@@ -10,9 +10,8 @@ public class ScoreLowAndLeaveCommunity extends SequentialCommandGroup {
 
   public ScoreLowAndLeaveCommunity(Drivetrain drivetrain, Intake intake) {
     addCommands(
-        new JoltIntakeDown(drivetrain)
-            .andThen(new StraightDrive(drivetrain, () -> .2).withTimeout(.2))
-            .andThen(new RunCommand(() -> intake.setIntakeSpeed(.5), intake).withTimeout(.5))
-            .andThen(new StraightDrive(drivetrain, () -> -.4).withTimeout(4)));
+        new RunCommand(() -> intake.setIntakeSpeed(-.2), intake)
+            .withTimeout(1)
+            .andThen(new StraightDrive(drivetrain, () -> -.4).withTimeout(4.3)));
   }
 }

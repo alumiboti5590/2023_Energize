@@ -206,7 +206,11 @@ public class RobotContainer {
 
     // Allows the operator controller to modify and adjust the arm position in small increments
     setDefaultCommand(
-        shoulder, () -> shoulder.controllerAction(operatorController.getShoulderModifier()));
+        shoulder,
+        () ->
+            shoulder.controllerAction(
+                operatorController.getShoulderModifier(),
+                operatorController.getShoulderSafetyOverride()));
   }
 
   /**
@@ -221,7 +225,9 @@ public class RobotContainer {
     autoChooser.addOption("Leave Community", new LeaveCommunity(drivetrain));
     autoChooser.addOption(
         "Score Low & Leave Community", new ScoreLowAndLeaveCommunity(drivetrain, intake));
-    autoChooser.addOption("Score Med Cone & Leave Community", new ScoreMedConeAndLeaveCommunity(drivetrain, shoulder, arm, grabber));
+    autoChooser.addOption(
+        "Score Med Cone & Leave Community",
+        new ScoreMedConeAndLeaveCommunity(drivetrain, shoulder, arm, grabber));
 
     // Place on the dashboard
     SmartDashboard.putData("Auto Command", autoChooser);
