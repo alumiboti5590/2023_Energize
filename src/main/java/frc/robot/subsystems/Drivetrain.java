@@ -167,9 +167,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   // Drive methods
-  public void controllerDrive(IDriverController controller) {
+  public void controllerDrive(IDriverController controller, boolean disableController) {
     DriveType driveType = driveTypeChooser.getSelected();
     Tuple<Double, Double> inputs;
+
+    if (disableController) {
+      return;
+    }
 
     // There's a few different ways the drive controller sticks can be used
     // to drive the robot, so this fetches the right type of inputs (first + second)
@@ -273,5 +277,6 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("L Drive", getLeftDistanceFeet());
     SmartDashboard.putNumber("R Drive", getRightDistanceFeet());
     SmartDashboard.putNumber("Heading", getHeadingDegrees());
+    SmartDashboard.putNumber("Pitch", getPitchDegrees());
   }
 }

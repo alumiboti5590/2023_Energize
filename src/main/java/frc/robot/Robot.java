@@ -64,8 +64,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.setIsAuto(true);
 
     if (m_autonomousCommand != null) {
+      System.out.println(m_autonomousCommand.getName());
       m_autonomousCommand.schedule();
     }
   }
@@ -86,6 +88,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.setIsAuto(false);
     System.out.println("Beginning teleopInit");
   }
 

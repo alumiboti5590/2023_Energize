@@ -86,7 +86,7 @@ public final class Constants {
     public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 22.25;
+    public static final double MAX_POSITION = 19.25;
 
     public static final double PERCENTAGE_MAX = .3;
     public static final double PERCENTAGE_MIN = -.3;
@@ -109,7 +109,7 @@ public final class Constants {
     public static final double MIN_POSITION = 0;
     public static final double HALFWAY = 3.5;
     public static final double SAFE_MAX = 13;
-    public static final double MAX_POSITION = 13.4;
+    public static final double MAX_POSITION = 13;
 
     // public static final Gains PID = new Gains(2, 0.00020, 20, 0, 0, 0);
     public static final Gains PID = new Gains(5e-5, 1e-6, 0.0, 0.000356, 0, 0);

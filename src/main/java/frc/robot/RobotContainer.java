@@ -9,7 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.commands.auto.JoltIntakeDown;
 import frc.robot.commands.auto.LeaveCommunity;
+import frc.robot.commands.auto.ScoreLowAndLeaveCommunity;
+import frc.robot.commands.auto.ScoreMedConeAndLeaveCommunity;
 import frc.robot.commands.drivetrain.StraightDrive;
 import frc.robot.controllers.IDriverController;
 import frc.robot.controllers.IOperatorController;
@@ -46,6 +49,8 @@ public class RobotContainer {
   // Autonomous Command selector
   // This allows us to pick from a drop down of different autonomous commands
   private SendableChooser<Command> autoChooser;
+
+  boolean isAuto = false;
 
   public RobotContainer() {
     // 1. Configure subsystems that are used by the robot
@@ -191,7 +196,7 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     // Allows for dynamically controlling the drivetrain with the drive controller
     // using the two sticks in either Tank Drive or Arcade drive mode
-    setDefaultCommand(drivetrain, () -> drivetrain.controllerDrive(driverController));
+    setDefaultCommand(drivetrain, () -> drivetrain.controllerDrive(driverController, isAuto));
 
     // Runs the intake at the percentage given by the controller
     setDefaultCommand(intake, () -> intake.setIntakeSpeed(operatorController.getIntakeSpeed()));
@@ -201,7 +206,11 @@ public class RobotContainer {
 
     // Allows the operator controller to modify and adjust the arm position in small increments
     setDefaultCommand(
-        shoulder, () -> shoulder.controllerAction(operatorController.getShoulderModifier()));
+        shoulder,
+        () ->
+            shoulder.controllerAction(
+                operatorController.getShoulderModifier(),
+                operatorController.getShoulderSafetyOverride()));
   }
 
   /**
@@ -212,7 +221,13 @@ public class RobotContainer {
   private void configureAutoCommands() {
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("Do Nothing", run(() -> drivetrain.tankDrive(0, 0), drivetrain));
-    autoChooser.addOption("Leave Community", new LeaveCommunity(this.drivetrain));
+    autoChooser.addOption("Jolt Intake", new JoltIntakeDown(drivetrain));
+    autoChooser.addOption("Leave Community", new LeaveCommunity(drivetrain));
+    autoChooser.addOption(
+        "Score Low & Leave Community", new ScoreLowAndLeaveCommunity(drivetrain, intake));
+    autoChooser.addOption(
+        "Score Med Cone & Leave Community",
+        new ScoreMedConeAndLeaveCommunity(drivetrain, shoulder, arm, grabber));
 
     // Place on the dashboard
     SmartDashboard.putData("Auto Command", autoChooser);
@@ -237,5 +252,9 @@ public class RobotContainer {
 
   private void setDefaultCommand(Subsystem subsystem, Runnable runnable) {
     subsystem.setDefaultCommand(run(runnable, subsystem));
+  }
+
+  public void setIsAuto(boolean isAuto) {
+    this.isAuto = isAuto;
   }
 }

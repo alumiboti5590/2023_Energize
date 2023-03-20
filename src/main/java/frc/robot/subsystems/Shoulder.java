@@ -168,7 +168,7 @@ public class Shoulder extends SubsystemBase {
   }
 
   /** Parse input from a controller and handle the different control modes */
-  public void controllerAction(double desiredInput) {
+  public void controllerAction(double desiredInput, boolean overrideSafety) {
     desiredMode = controlModeChooser.getSelected();
     if (currentMode == ControlMode.ZEROED && desiredMode != currentMode) {
       currentMode = desiredMode;
@@ -176,7 +176,7 @@ public class Shoulder extends SubsystemBase {
 
     switch (currentMode) {
       case OPEN:
-        this.percentageControl(desiredInput > 0 ? desiredInput : .00001);
+        this.percentageControl(desiredInput > 0 ? desiredInput : .00001, overrideSafety);
         if (desiredInput == 0) {
           this.currentMode = ControlMode.CLOSED;
           this.direction = Direction.HOLD;
@@ -234,7 +234,7 @@ public class Shoulder extends SubsystemBase {
   }
 
   /** Control the arm via percentage speed of [-1, 1] */
-  public void percentageControl(double desiredInput) {
+  public void percentageControl(double desiredInput, boolean overrideSafety) {
     this.mechanicalBrake.set(COAST_MODE);
 
     // When going down, we dont really need power
@@ -242,7 +242,7 @@ public class Shoulder extends SubsystemBase {
       desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
 
-    if (currentPosition >= maxPosition) {
+    if (currentPosition >= maxPosition && !overrideSafety) {
       desiredInput = 0;
     }
 
@@ -256,6 +256,7 @@ public class Shoulder extends SubsystemBase {
 
   /** When ZEROING, drive the shoulder down until the limit switch is set */
   public void performZeroing() {
+    this.mechanicalBrake.set(COAST_MODE);
     this.motor.set(Constants.Shoulder.ZEROING_SPEED);
     if (isFullyDown()) {
       this.zero();
@@ -348,7 +349,8 @@ public class Shoulder extends SubsystemBase {
         // When we _start_ going downwards, drive the motor up a short amount
         // and allow the mechanical brake to disengage properly before driving down
         this.mechanicalBrake.set(COAST_MODE);
-        this.motor.set(percentageRaised() > .5 ? .6 : .4);
+
+        this.motor.set(percentageRaised() > .5 ? .4 : .2);
         if (initiateDownwardCounts > 5) {
           this.motor.set(0);
           this.pidController.setReference(goalPosition, ControlType.kSmartMotion);
@@ -421,6 +423,6 @@ public class Shoulder extends SubsystemBase {
     SmartDashboard.putNumber("Shoulder Power", this.motor.getAppliedOutput());
     SmartDashboard.putString("Shoulder Direction", directions.get(direction));
     SmartDashboard.putBoolean("Shoulder Fully Down", this.lowerLimitSwitch.get());
-    SmartDashboard.putData("Shoulder Mode", controlModeChooser);
+    // SmartDashboard.putData("Shoulder Mode", controlModeChooser);
   }
 }

@@ -26,6 +26,13 @@ public class BalanceOnChargeStation extends SequentialCommandGroup {
   public double getSpeed() {
     double currentPitch = this.drivetrain.getPitchDegrees();
     double rawPIDSpeed = balancePID.calculate(currentPitch, GOAL_PITCH);
+    if (false) {
+      rawPIDSpeed = .3;
+    } else if (false) { // getting closer to 0
+      rawPIDSpeed = .3;
+    } else {
+      rawPIDSpeed = 0;
+    }
     return rawPIDSpeed;
   }
 

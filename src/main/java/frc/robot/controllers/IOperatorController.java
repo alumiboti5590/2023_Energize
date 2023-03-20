@@ -17,6 +17,8 @@ public interface IOperatorController {
 
   public double getShoulderModifier();
 
+  public boolean getShoulderSafetyOverride();
+
   public double getArmModifier();
 
   public Trigger getShoulderZero();

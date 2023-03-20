@@ -199,6 +199,10 @@ public class Arm extends SubsystemBase {
     return MathUtil.clamp(desiredPosition, minPosition, maxPosition);
   }
 
+  public void setGoalPosition(double goalPosition) {
+    this.goalPosition = goalPosition;
+  }
+
   public void resetEncoder() {
     this.encoder.setPosition(minPosition);
   }
@@ -247,6 +251,6 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("Arm Goal", this.goalPosition);
     SmartDashboard.putNumber("Arm Power", this.motor.getAppliedOutput());
     SmartDashboard.putBoolean("Arm Fully Down", this.lowerLimitSwitch.get());
-    SmartDashboard.putData("Arm Mode", controlModeChooser);
+    // SmartDashboard.putData("Arm Mode", controlModeChooser);
   }
 }
