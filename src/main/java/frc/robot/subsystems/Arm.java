@@ -25,10 +25,18 @@ public class Arm extends SubsystemBase {
     CLOSED;
   }
 
+  // Hardware associated with the Arm
+  // --------------------------------
+
   private CANSparkMax motor;
   private SparkMaxPIDController pidController;
   private RelativeEncoder encoder;
   private DigitalInput lowerLimitSwitch;
+
+  // Variables that track positions, minimums & maximums across
+  // the different periodic iteration loops during smart motion.
+  // These allow us to copy a fair amount of smart motion
+  // position control logic between the arm + shoulder
 
   private double goalPosition = 0,
       lastGoalPosition = 0,
@@ -37,6 +45,8 @@ public class Arm extends SubsystemBase {
       maxPosition = 0,
       minPercentage = 0,
       maxPercentage;
+
+  // Controllable values selected either in Constants or via the SmartDashboard
 
   private SendableChooser<ControlMode> controlModeChooser;
   private ControlMode desiredMode, currentMode = ControlMode.ZEROING;
@@ -87,6 +97,13 @@ public class Arm extends SubsystemBase {
       currentMode = desiredMode;
     }
 
+    // The arm works by moving via percentage control (OPEN) when the controller
+    // is pressed, which allows it to quickly respond and get to where the operator
+    // needs it to be.
+    // When the operator is not moving the arm, it switches back to smart motion
+    // (CLOSED) which keeps the arm at the same position the operator left it in.
+    // When the robot starts up, we ZERO it which drives the arm backwards until
+    // it hits the minimum position limit switch.
     switch (currentMode) {
       case OPEN:
         this.percentageControl(desiredInput);
@@ -109,6 +126,7 @@ public class Arm extends SubsystemBase {
     }
   }
 
+  /** Start ZEROING the shoulder to the minimum position */
   public void startZeroingMode() {
     this.currentMode = ControlMode.ZEROING;
   }
@@ -143,10 +161,12 @@ public class Arm extends SubsystemBase {
       desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
 
+    // If we've already passed the max position, stop the arm to prevent damage.
     if (currentPosition >= maxPosition) {
       desiredInput = 0;
     }
 
+    // If we've hit the lower limit switch, stop the arm to prevent damage.
     if (isFullyRetracted() && desiredInput < 0) {
       desiredInput = 0;
       this.resetEncoder();
@@ -154,6 +174,7 @@ public class Arm extends SubsystemBase {
     this.motor.set(desiredInput);
   }
 
+  /** Prep the motor for zeroing and stop it when we hit the bottom */
   public void performZeroing() {
     this.motor.set(-.3);
     if (isFullyRetracted()) {
@@ -163,6 +184,7 @@ public class Arm extends SubsystemBase {
     }
   }
 
+  /** Perform the smart motion updates for the arm by setting the new position to one in range. */
   public void smartMotionPeriodic() {
     if (this.goalPosition <= minPosition && this.isFullyRetracted()) {
       this.goalPosition = minPosition;
@@ -176,6 +198,8 @@ public class Arm extends SubsystemBase {
       this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
     }
 
+    // This is special code to drive the arm back because it has a tendency to
+    // hang out when fully down, and there's no such thing as negative forward feed
     if (goalPosition == minPosition) {
       this.motor.set(isFullyRetracted() ? -.04 : -.1);
     }

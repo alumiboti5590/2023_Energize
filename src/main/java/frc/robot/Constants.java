@@ -20,7 +20,13 @@ public final class Constants {
 
   // All variables associated with the Controller subsystems
   public static final class Controller {
+    // The ports that the two controllers are connected to on the Driver Station
+    // This can be checked via the USB tab of the Driver Station
     public static final int DRIVER_CONTROLLER_PORT = 0, OPERATOR_CONTROLLER_PORT = 1;
+
+    // Deadband allows a controller to have a small amount of input be ignored -
+    // this is usually from unintended thumb pressure of manufacturing defects,
+    // since being at 0.000000 on a Thumb stick is almost impossible
     public static final double XBOX_CONTROLLER_DEADBAND = 0.2;
   }
 
@@ -41,6 +47,8 @@ public final class Constants {
         WHEEL_DIAMETER_INCHES = 6,
         ENCODER_COUNTS_PER_ROTATION = 96;
 
+    // A function that (hopefully) returns the correct ratio of encoder 'ticks'
+    // to meters travelled. This didn't really work (also we lost one of the encoders)
     public static double metersPerEncoderPulse() {
       double wheelsDiameterAsCm = DistanceUtility.inchesToCentimeters(WHEEL_DIAMETER_INCHES);
       double beforeGearBoxReduction = 100 / (wheelsDiameterAsCm * Math.PI); // 100 == 100cm to 1 m
@@ -48,6 +56,7 @@ public final class Constants {
       return afterGearBoxReduction / 100;
     }
 
+    // PID controller to manage the StraightDrive command
     public static final Gains STRAIGHT_PID = new Gains(.05, 0, .1, 0, 0, 0);
     public static final double STRAIGHT_MAX_TURN_ROTATION = .3;
   }
@@ -82,30 +91,45 @@ public final class Constants {
   }
 
   public static final class Arm {
-    // TODO: starting with a high number to ensure we dont drive the thing through itself
     public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
+    // Given the conversion factor, sets the minimum and maximum positions
+    // that the arm encoder can be before it prevents any more motion in that
+    // given direction.
     public static final double MIN_POSITION = 0;
     public static final double MAX_POSITION = 19.25;
 
+    // The minimum & maximum percentage output values allowed
+    // by the motor in BOTH percentage and smart motion control
     public static final double PERCENTAGE_MAX = .3;
     public static final double PERCENTAGE_MIN = -.3;
 
+    // The PID gains that drive the arm to the desired position
     public static final Gains PID = new Gains(5e-5, 1e-6, 0, 0, 0, 0);
   }
 
   public static final class Shoulder {
     public static final double ENCODER_CONVERSION_FACTOR = 1.0;
 
+    // The minimum & maximum percentage output values allowed
+    // by the motor in BOTH percentage and smart motion control
     public static final double PERCENTAGE_MAX = .5;
     public static final double PERCENTAGE_MIN = -.2;
 
+    // How much FF gain to provide on the shoulder to hold position
     public static final double FORWARD_FEED_UPWARDS = .2,
+        // How fast to 'zero' (drive backwards) until we hit the limit switch
         ZEROING_SPEED = -.3,
+        // When going up, overshoot the desired distance by .5 (see max + min above)
+        // which allows the mechanical brake to turn on
         UPWARDS_ADDITIONAL_GOAL = .5,
+        // How much error tolerance to allow before engaging the mechanical brake
         UPWARD_ERROR_TOLERANCE = .2,
         DOWNWARD_ERROR_TOLERANCE = .1;
 
+    // Given the conversion factor, sets the minimum and maximum positions
+    // that the shoulder encoder can be before it prevents any more motion in that
+    // given direction.
     public static final double MIN_POSITION = 0;
     public static final double HALFWAY = 3.5;
     public static final double SAFE_MAX = 13;
