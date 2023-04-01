@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.controllers.hardware;
 
 import com.alumiboti5590.util.ControllerUtility;
@@ -10,27 +11,27 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class CustomXBoxController extends XboxController {
 
-  protected Trigger leftBumperTrigger, rightBumperTrigger;
+    protected Trigger leftBumperTrigger, rightBumperTrigger;
 
-  // Deadzone is the amount that an axis needs to be pushed before its registered
-  protected double deadzone = 0;
+    // Deadzone is the amount that an axis needs to be pushed before its registered
+    protected double deadzone = 0;
 
-  public CustomXBoxController(int port) {
-    this(port, 0);
-  }
+    public CustomXBoxController(int port) {
+        this(port, 0);
+    }
 
-  public CustomXBoxController(int port, double deadzone) {
-    super(port);
-    this.deadzone = deadzone;
-    leftBumperTrigger = new Trigger(this::getLeftBumper);
-    rightBumperTrigger = new Trigger(this::getRightBumper);
-  }
+    public CustomXBoxController(int port, double deadzone) {
+        super(port);
+        this.deadzone = deadzone;
+        leftBumperTrigger = new Trigger(this::getLeftBumper);
+        rightBumperTrigger = new Trigger(this::getRightBumper);
+    }
 
-  protected double handleDeadband(double val, double deadband) {
-    return ControllerUtility.handleDeadband(val, deadband);
-  }
+    protected double handleDeadband(double val, double deadband) {
+        return ControllerUtility.handleDeadband(val, deadband);
+    }
 
-  public double getDeadzone() {
-    return this.deadzone;
-  }
+    public double getDeadzone() {
+        return this.deadzone;
+    }
 }

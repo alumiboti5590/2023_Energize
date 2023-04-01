@@ -1,14 +1,15 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package com.alumiboti5590.util.filters;
 
 public class LinearInputFilter implements IInputFilter {
-  private double scale;
+    private double scale;
 
-  public LinearInputFilter(double scaleFactor) {
-    this.scale = scaleFactor;
-  }
+    public LinearInputFilter(double scaleFactor) {
+        this.scale = scaleFactor;
+    }
 
-  @Override
-  public double get(double input) {
-    return input * this.scale;
-  }
+    @Override
+    public double get(double input) {
+        return input * this.scale;
+    }
 }

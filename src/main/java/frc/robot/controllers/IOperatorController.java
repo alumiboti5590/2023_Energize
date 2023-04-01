@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.controllers;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -9,29 +10,29 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public interface IOperatorController {
 
-  public Trigger getGrabOpen();
+    public Trigger getGrabOpen();
 
-  public Trigger getGrabClose();
+    public Trigger getGrabClose();
 
-  public double getIntakeSpeed();
+    public double getIntakeSpeed();
 
-  public double getShoulderModifier();
+    public double getShoulderModifier();
 
-  public boolean getShoulderSafetyOverride();
+    public boolean getShoulderSafetyOverride();
 
-  public double getArmModifier();
+    public double getArmModifier();
 
-  public Trigger getShoulderZero();
+    public Trigger getShoulderZero();
 
-  public Trigger getArmZeroMode();
+    public Trigger getArmZeroMode();
 
-  public Trigger getShoulderZeroMode();
+    public Trigger getShoulderZeroMode();
 
-  public Trigger getLowGoal();
+    public Trigger getLowGoal();
 
-  public Trigger getMedGoal();
+    public Trigger getMedGoal();
 
-  public Trigger getHighGoal();
+    public Trigger getHighGoal();
 
-  public boolean getGoalModifier();
+    public boolean getGoalModifier();
 }

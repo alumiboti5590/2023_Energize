@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -11,13 +12,10 @@ import frc.robot.subsystems.Shoulder.ShoulderPosition;
 
 public class ScoreMedConeAndLeaveCommunity extends SequentialCommandGroup {
 
-  public ScoreMedConeAndLeaveCommunity(
-      Drivetrain drivetrain, Shoulder shoulder, Arm arm, Grabber grabber) {
-    addCommands(
-        new JoltIntakeDown(drivetrain)
-            .andThen(
-                new RunCommand(() -> shoulder.setGoalPosition(ShoulderPosition.HALFWAY), shoulder))
-            .andThen(new RunCommand(() -> arm.setGoalPosition(10), arm))
-            .andThen(new RunCommand(() -> grabber.setGrabMode(GrabMode.OPEN), grabber)));
-  }
+    public ScoreMedConeAndLeaveCommunity(Drivetrain drivetrain, Shoulder shoulder, Arm arm, Grabber grabber) {
+        addCommands(new JoltIntakeDown(drivetrain)
+                .andThen(new RunCommand(() -> shoulder.setGoalPosition(ShoulderPosition.HALFWAY), shoulder))
+                .andThen(new RunCommand(() -> arm.setGoalPosition(10), arm))
+                .andThen(new RunCommand(() -> grabber.setGrabMode(GrabMode.OPEN), grabber)));
+    }
 }

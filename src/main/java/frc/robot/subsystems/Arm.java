@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.subsystems;
 
 import com.alumiboti5590.util.pid.Gains;
@@ -17,264 +18,264 @@ import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
 
-  /** Either Open (percentage) or Closed (position-based) */
-  private enum ControlMode {
-    ZEROING,
-    ZEROED,
-    OPEN,
-    CLOSED;
-  }
-
-  // Hardware associated with the Arm
-  // --------------------------------
-
-  private CANSparkMax motor;
-  private SparkMaxPIDController pidController;
-  private RelativeEncoder encoder;
-  private DigitalInput lowerLimitSwitch;
-
-  // Variables that track positions, minimums & maximums across
-  // the different periodic iteration loops during smart motion.
-  // These allow us to copy a fair amount of smart motion
-  // position control logic between the arm + shoulder
-
-  private double goalPosition = 0,
-      lastGoalPosition = 0,
-      currentPosition = 0,
-      minPosition = 0,
-      maxPosition = 0,
-      minPercentage = 0,
-      maxPercentage;
-
-  // Controllable values selected either in Constants or via the SmartDashboard
-
-  private SendableChooser<ControlMode> controlModeChooser;
-  private ControlMode desiredMode, currentMode = ControlMode.ZEROING;
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-
-  public Arm() {
-    this.motor = new CANSparkMax(RobotProperty.ARM_MOTOR_ID.getInteger(), MotorType.kBrushless);
-    this.motor.setInverted(RobotProperty.ARM_MOTOR_INVERT.getBoolean());
-    this.motor.setIdleMode(IdleMode.kBrake);
-    this.lowerLimitSwitch = new DigitalInput(RobotProperty.ARM_LIMIT_SWITCH_DIO.getInteger());
-
-    this.encoder = this.motor.getEncoder();
-    this.encoder.setPositionConversionFactor(Constants.Arm.ENCODER_CONVERSION_FACTOR);
-    this.encoder.setPosition(this.goalPosition);
-
-    this.pidController = this.motor.getPIDController();
-
-    controlModeChooser = new SendableChooser<ControlMode>();
-    controlModeChooser.setDefaultOption("Position Mode", ControlMode.CLOSED);
-    controlModeChooser.addOption("Open Mode", ControlMode.OPEN);
-
-    minPosition = Constants.Arm.MIN_POSITION;
-    maxPosition = Constants.Arm.MAX_POSITION;
-    minPercentage = Constants.Arm.PERCENTAGE_MIN;
-    maxPercentage = Constants.Arm.PERCENTAGE_MAX;
-
-    // PID coefficients
-    Gains pidGains = Constants.Arm.PID;
-
-    // set PID coefficients
-    pidController.setP(pidGains.kP);
-    pidController.setI(pidGains.kI);
-    pidController.setD(pidGains.kD);
-    pidController.setIZone(pidGains.kIzone);
-    pidController.setFF(pidGains.kF);
-    pidController.setOutputRange(Constants.Arm.PERCENTAGE_MIN, Constants.Arm.PERCENTAGE_MAX);
-
-    pidController.setSmartMotionMaxVelocity(700, 0);
-    pidController.setSmartMotionMinOutputVelocity(0, 0);
-    pidController.setSmartMotionMaxAccel(400, 0);
-    pidController.setSmartMotionAllowedClosedLoopError(.1, 0);
-  }
-
-  /** Parse input from a controller and handle the different control modes */
-  public void controllerAction(double desiredInput) {
-    desiredMode = controlModeChooser.getSelected();
-    if (currentMode == ControlMode.ZEROED && desiredMode != currentMode) {
-      currentMode = desiredMode;
+    /** Either Open (percentage) or Closed (position-based) */
+    private enum ControlMode {
+        ZEROING,
+        ZEROED,
+        OPEN,
+        CLOSED;
     }
 
-    // The arm works by moving via percentage control (OPEN) when the controller
-    // is pressed, which allows it to quickly respond and get to where the operator
-    // needs it to be.
-    // When the operator is not moving the arm, it switches back to smart motion
-    // (CLOSED) which keeps the arm at the same position the operator left it in.
-    // When the robot starts up, we ZERO it which drives the arm backwards until
-    // it hits the minimum position limit switch.
-    switch (currentMode) {
-      case OPEN:
-        this.percentageControl(desiredInput);
-        if (desiredInput == 0) {
-          this.currentMode = ControlMode.CLOSED;
-          this.goalPosition = currentPosition;
+    // Hardware associated with the Arm
+    // --------------------------------
+
+    private CANSparkMax motor;
+    private SparkMaxPIDController pidController;
+    private RelativeEncoder encoder;
+    private DigitalInput lowerLimitSwitch;
+
+    // Variables that track positions, minimums & maximums across
+    // the different periodic iteration loops during smart motion.
+    // These allow us to copy a fair amount of smart motion
+    // position control logic between the arm + shoulder
+
+    private double goalPosition = 0,
+            lastGoalPosition = 0,
+            currentPosition = 0,
+            minPosition = 0,
+            maxPosition = 0,
+            minPercentage = 0,
+            maxPercentage;
+
+    // Controllable values selected either in Constants or via the SmartDashboard
+
+    private SendableChooser<ControlMode> controlModeChooser;
+    private ControlMode desiredMode, currentMode = ControlMode.ZEROING;
+    public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+
+    public Arm() {
+        this.motor = new CANSparkMax(RobotProperty.ARM_MOTOR_ID.getInteger(), MotorType.kBrushless);
+        this.motor.setInverted(RobotProperty.ARM_MOTOR_INVERT.getBoolean());
+        this.motor.setIdleMode(IdleMode.kBrake);
+        this.lowerLimitSwitch = new DigitalInput(RobotProperty.ARM_LIMIT_SWITCH_DIO.getInteger());
+
+        this.encoder = this.motor.getEncoder();
+        this.encoder.setPositionConversionFactor(Constants.Arm.ENCODER_CONVERSION_FACTOR);
+        this.encoder.setPosition(this.goalPosition);
+
+        this.pidController = this.motor.getPIDController();
+
+        controlModeChooser = new SendableChooser<ControlMode>();
+        controlModeChooser.setDefaultOption("Position Mode", ControlMode.CLOSED);
+        controlModeChooser.addOption("Open Mode", ControlMode.OPEN);
+
+        minPosition = Constants.Arm.MIN_POSITION;
+        maxPosition = Constants.Arm.MAX_POSITION;
+        minPercentage = Constants.Arm.PERCENTAGE_MIN;
+        maxPercentage = Constants.Arm.PERCENTAGE_MAX;
+
+        // PID coefficients
+        Gains pidGains = Constants.Arm.PID;
+
+        // set PID coefficients
+        pidController.setP(pidGains.kP);
+        pidController.setI(pidGains.kI);
+        pidController.setD(pidGains.kD);
+        pidController.setIZone(pidGains.kIzone);
+        pidController.setFF(pidGains.kF);
+        pidController.setOutputRange(Constants.Arm.PERCENTAGE_MIN, Constants.Arm.PERCENTAGE_MAX);
+
+        pidController.setSmartMotionMaxVelocity(700, 0);
+        pidController.setSmartMotionMinOutputVelocity(0, 0);
+        pidController.setSmartMotionMaxAccel(400, 0);
+        pidController.setSmartMotionAllowedClosedLoopError(.1, 0);
+    }
+
+    /** Parse input from a controller and handle the different control modes */
+    public void controllerAction(double desiredInput) {
+        desiredMode = controlModeChooser.getSelected();
+        if (currentMode == ControlMode.ZEROED && desiredMode != currentMode) {
+            currentMode = desiredMode;
         }
-        break;
-      case CLOSED:
-        this.adjustGoalPosition(desiredInput);
-        if (desiredInput != 0) {
-          this.currentMode = ControlMode.OPEN;
+
+        // The arm works by moving via percentage control (OPEN) when the controller
+        // is pressed, which allows it to quickly respond and get to where the operator
+        // needs it to be.
+        // When the operator is not moving the arm, it switches back to smart motion
+        // (CLOSED) which keeps the arm at the same position the operator left it in.
+        // When the robot starts up, we ZERO it which drives the arm backwards until
+        // it hits the minimum position limit switch.
+        switch (currentMode) {
+            case OPEN:
+                this.percentageControl(desiredInput);
+                if (desiredInput == 0) {
+                    this.currentMode = ControlMode.CLOSED;
+                    this.goalPosition = currentPosition;
+                }
+                break;
+            case CLOSED:
+                this.adjustGoalPosition(desiredInput);
+                if (desiredInput != 0) {
+                    this.currentMode = ControlMode.OPEN;
+                }
+                break;
+            case ZEROING:
+                this.performZeroing();
+                break;
+            default:
+                this.motor.set(0);
         }
-        break;
-      case ZEROING:
-        this.performZeroing();
-        break;
-      default:
-        this.motor.set(0);
-    }
-  }
-
-  /** Start ZEROING the shoulder to the minimum position */
-  public void startZeroingMode() {
-    this.currentMode = ControlMode.ZEROING;
-  }
-
-  /**
-   * Allows for a modifier value to control the shoulder height in small increments A positive value
-   * will raise the arm, a negative value will lower the arm, and a zero value will not affect the
-   * arm at all.
-   */
-  public void adjustGoalPosition(double modifier) {
-    if (modifier > 0) {
-      this.extendArm();
-    } else if (modifier < 0) {
-      this.retractArm();
-    }
-  }
-
-  /** Raises the shoulder by a small amount, determined by the set conversion factor */
-  public void extendArm() {
-    this.goalPosition += .15;
-  }
-
-  /** Lowers the shoulder by a small amount, determined by the set conversion factor */
-  public void retractArm() {
-    this.goalPosition -= .15;
-  }
-
-  /** Control the arm via percentage speed of [-1, 1] */
-  public void percentageControl(double desiredInput) {
-    // When going down, we dont really need power
-    if (desiredInput < 0) {
-      desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
     }
 
-    // If we've already passed the max position, stop the arm to prevent damage.
-    if (currentPosition >= maxPosition) {
-      desiredInput = 0;
+    /** Start ZEROING the shoulder to the minimum position */
+    public void startZeroingMode() {
+        this.currentMode = ControlMode.ZEROING;
     }
 
-    // If we've hit the lower limit switch, stop the arm to prevent damage.
-    if (isFullyRetracted() && desiredInput < 0) {
-      desiredInput = 0;
-      this.resetEncoder();
-    }
-    this.motor.set(desiredInput);
-  }
-
-  /** Prep the motor for zeroing and stop it when we hit the bottom */
-  public void performZeroing() {
-    this.motor.set(-.3);
-    if (isFullyRetracted()) {
-      this.zero();
-      this.motor.set(0);
-      currentMode = ControlMode.ZEROED;
-    }
-  }
-
-  /** Perform the smart motion updates for the arm by setting the new position to one in range. */
-  public void smartMotionPeriodic() {
-    if (this.goalPosition <= minPosition && this.isFullyRetracted()) {
-      this.goalPosition = minPosition;
-      this.encoder.setPosition(minPosition);
+    /**
+     * Allows for a modifier value to control the shoulder height in small increments A positive value
+     * will raise the arm, a negative value will lower the arm, and a zero value will not affect the
+     * arm at all.
+     */
+    public void adjustGoalPosition(double modifier) {
+        if (modifier > 0) {
+            this.extendArm();
+        } else if (modifier < 0) {
+            this.retractArm();
+        }
     }
 
-    // Bound our goal position to something realistic
-    this.goalPosition = this.ensurePositionInRange(this.goalPosition);
-
-    if (goalPosition != lastGoalPosition) {
-      this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
+    /** Raises the shoulder by a small amount, determined by the set conversion factor */
+    public void extendArm() {
+        this.goalPosition += .15;
     }
 
-    // This is special code to drive the arm back because it has a tendency to
-    // hang out when fully down, and there's no such thing as negative forward feed
-    if (goalPosition == minPosition) {
-      this.motor.set(isFullyRetracted() ? -.04 : -.1);
+    /** Lowers the shoulder by a small amount, determined by the set conversion factor */
+    public void retractArm() {
+        this.goalPosition -= .15;
     }
 
-    this.lastGoalPosition = goalPosition;
-  }
+    /** Control the arm via percentage speed of [-1, 1] */
+    public void percentageControl(double desiredInput) {
+        // When going down, we dont really need power
+        if (desiredInput < 0) {
+            desiredInput = MathUtil.clamp(desiredInput, minPercentage, maxPercentage);
+        }
 
-  /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */
-  @Override
-  public void periodic() {
-    this.currentPosition = this.encoder.getPosition();
+        // If we've already passed the max position, stop the arm to prevent damage.
+        if (currentPosition >= maxPosition) {
+            desiredInput = 0;
+        }
 
-    if (controlModeChooser.getSelected() == ControlMode.CLOSED) {
-      this.smartMotionPeriodic();
+        // If we've hit the lower limit switch, stop the arm to prevent damage.
+        if (isFullyRetracted() && desiredInput < 0) {
+            desiredInput = 0;
+            this.resetEncoder();
+        }
+        this.motor.set(desiredInput);
     }
-    this.updateSmartDashboard();
-  }
 
-  /** Ensure the position provided is not outside of the shoulder's physical boundaries */
-  private double ensurePositionInRange(double desiredPosition) {
-    return MathUtil.clamp(desiredPosition, minPosition, maxPosition);
-  }
-
-  public void setGoalPosition(double goalPosition) {
-    this.goalPosition = goalPosition;
-  }
-
-  public void resetEncoder() {
-    this.encoder.setPosition(minPosition);
-  }
-
-  public void zero() {
-    this.encoder.setPosition(minPosition);
-    this.goalPosition = minPosition;
-  }
-
-  public double percentageExtended() {
-    return this.currentPosition / maxPosition;
-  }
-
-  public boolean isFullyRetracted() {
-    return this.lowerLimitSwitch.get();
-  }
-
-  /**
-   * Prevent the shoulder from moving if the arm is extended more than the percentage in the
-   * function.
-   */
-  public boolean armExtendedToUnsafeMoveDistance() {
-    return this.percentageExtended() < .30;
-  }
-
-  /**
-   * Determines how much dynamic feed forward multiplier to add to the shoulder. When the arm is
-   * extended, we require much more "push" to keep it raised.
-   */
-  public double getShoulderFeedForwardMultiplier() {
-    double armPercent = this.percentageExtended();
-    if (armPercent < .3) {
-      return 1;
-    } else if (armPercent < .6) {
-      return 1.5;
-    } else if (armPercent < .8) {
-      return 2;
-    } else {
-      return 2.5;
+    /** Prep the motor for zeroing and stop it when we hit the bottom */
+    public void performZeroing() {
+        this.motor.set(-.3);
+        if (isFullyRetracted()) {
+            this.zero();
+            this.motor.set(0);
+            currentMode = ControlMode.ZEROED;
+        }
     }
-  }
 
-  /** Keep the SmartDashboard updated */
-  public void updateSmartDashboard() {
-    SmartDashboard.putNumber("Arm Position", currentPosition);
-    SmartDashboard.putNumber("Arm Goal", this.goalPosition);
-    SmartDashboard.putNumber("Arm Power", this.motor.getAppliedOutput());
-    SmartDashboard.putBoolean("Arm Fully Down", this.lowerLimitSwitch.get());
-    // SmartDashboard.putData("Arm Mode", controlModeChooser);
-  }
+    /** Perform the smart motion updates for the arm by setting the new position to one in range. */
+    public void smartMotionPeriodic() {
+        if (this.goalPosition <= minPosition && this.isFullyRetracted()) {
+            this.goalPosition = minPosition;
+            this.encoder.setPosition(minPosition);
+        }
+
+        // Bound our goal position to something realistic
+        this.goalPosition = this.ensurePositionInRange(this.goalPosition);
+
+        if (goalPosition != lastGoalPosition) {
+            this.pidController.setReference(this.goalPosition, ControlType.kSmartMotion);
+        }
+
+        // This is special code to drive the arm back because it has a tendency to
+        // hang out when fully down, and there's no such thing as negative forward feed
+        if (goalPosition == minPosition) {
+            this.motor.set(isFullyRetracted() ? -.04 : -.1);
+        }
+
+        this.lastGoalPosition = goalPosition;
+    }
+
+    /** Runs every 20ms and sets the smart motion parameters needed for the shoulder */
+    @Override
+    public void periodic() {
+        this.currentPosition = this.encoder.getPosition();
+
+        if (controlModeChooser.getSelected() == ControlMode.CLOSED) {
+            this.smartMotionPeriodic();
+        }
+        this.updateSmartDashboard();
+    }
+
+    /** Ensure the position provided is not outside of the shoulder's physical boundaries */
+    private double ensurePositionInRange(double desiredPosition) {
+        return MathUtil.clamp(desiredPosition, minPosition, maxPosition);
+    }
+
+    public void setGoalPosition(double goalPosition) {
+        this.goalPosition = goalPosition;
+    }
+
+    public void resetEncoder() {
+        this.encoder.setPosition(minPosition);
+    }
+
+    public void zero() {
+        this.encoder.setPosition(minPosition);
+        this.goalPosition = minPosition;
+    }
+
+    public double percentageExtended() {
+        return this.currentPosition / maxPosition;
+    }
+
+    public boolean isFullyRetracted() {
+        return this.lowerLimitSwitch.get();
+    }
+
+    /**
+     * Prevent the shoulder from moving if the arm is extended more than the percentage in the
+     * function.
+     */
+    public boolean armExtendedToUnsafeMoveDistance() {
+        return this.percentageExtended() < .30;
+    }
+
+    /**
+     * Determines how much dynamic feed forward multiplier to add to the shoulder. When the arm is
+     * extended, we require much more "push" to keep it raised.
+     */
+    public double getShoulderFeedForwardMultiplier() {
+        double armPercent = this.percentageExtended();
+        if (armPercent < .3) {
+            return 1;
+        } else if (armPercent < .6) {
+            return 1.5;
+        } else if (armPercent < .8) {
+            return 2;
+        } else {
+            return 2.5;
+        }
+    }
+
+    /** Keep the SmartDashboard updated */
+    public void updateSmartDashboard() {
+        SmartDashboard.putNumber("Arm Position", currentPosition);
+        SmartDashboard.putNumber("Arm Goal", this.goalPosition);
+        SmartDashboard.putNumber("Arm Power", this.motor.getAppliedOutput());
+        SmartDashboard.putBoolean("Arm Fully Down", this.lowerLimitSwitch.get());
+        // SmartDashboard.putData("Arm Mode", controlModeChooser);
+    }
 }

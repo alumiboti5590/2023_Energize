@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -6,9 +7,9 @@ import frc.robot.subsystems.Drivetrain;
 
 public class JoltIntakeDown extends SequentialCommandGroup {
 
-  private double JOLT_SPEED = -.3;
+    private double JOLT_SPEED = -.3;
 
-  public JoltIntakeDown(Drivetrain drivetrain) {
-    addCommands(new StraightDrive(drivetrain, () -> JOLT_SPEED).withTimeout(.2));
-  }
+    public JoltIntakeDown(Drivetrain drivetrain) {
+        addCommands(new StraightDrive(drivetrain, () -> JOLT_SPEED).withTimeout(.2));
+    }
 }

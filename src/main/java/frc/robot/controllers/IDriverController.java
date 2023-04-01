@@ -1,3 +1,4 @@
+/* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot.controllers;
 
 import com.alumiboti5590.util.Tuple;
@@ -10,22 +11,22 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public interface IDriverController {
 
-  /**
-   * Return values for arcade/curvature drive - Speed + Rotation First element in tuple is speed,
-   * Second element is rotation
-   */
-  public Tuple<Double, Double> getArcadeOrCurvatureDriveValues();
+    /**
+     * Return values for arcade/curvature drive - Speed + Rotation First element in tuple is speed,
+     * Second element is rotation
+     */
+    public Tuple<Double, Double> getArcadeOrCurvatureDriveValues();
 
-  /**
-   * Return values for tank drive - Left + Right Speed First element in tuple is Left speed, Second
-   * element is Right speed
-   */
-  public Tuple<Double, Double> getTankDriveValues();
+    /**
+     * Return values for tank drive - Left + Right Speed First element in tuple is Left speed, Second
+     * element is Right speed
+     */
+    public Tuple<Double, Double> getTankDriveValues();
 
-  public boolean getCurvatureDriveQuickTurn();
+    public boolean getCurvatureDriveQuickTurn();
 
-  // Define buttons
-  public Trigger getTurboButton();
+    // Define buttons
+    public Trigger getTurboButton();
 
-  public Trigger getStraightDrive();
+    public Trigger getStraightDrive();
 }
