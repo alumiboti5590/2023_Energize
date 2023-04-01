@@ -1,9 +1,10 @@
 /* 2023 Written by Alumiboti FRC 5590 */
 package frc.robot;
 
-import com.alumiboti5590.util.DistanceUtility;
 import com.alumiboti5590.util.pid.Gains;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -47,7 +48,7 @@ public final class Constants {
         // A function that (hopefully) returns the correct ratio of encoder 'ticks'
         // to meters travelled. This didn't really work (also we lost one of the encoders)
         public static double metersPerEncoderPulse() {
-            double wheelsDiameterAsCm = DistanceUtility.inchesToCentimeters(WHEEL_DIAMETER_INCHES);
+            double wheelsDiameterAsCm = Units.inchesToMeters(WHEEL_DIAMETER_INCHES) / 100;
             double beforeGearBoxReduction = 100 / (wheelsDiameterAsCm * Math.PI); // 100 == 100cm to 1 m
             double afterGearBoxReduction = beforeGearBoxReduction / GEAR_BOX_RATIO;
             return afterGearBoxReduction / 100;
