@@ -17,16 +17,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.HashMap;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class Shoulder extends SubsystemBase {
-
-  public interface ArmExtendedCheck {
-    public boolean op();
-  }
-
-  public interface ShoulderFeedForwardMultiplier {
-    public double op();
-  }
 
   /** Predetermined shoulder positions */
   public enum ShoulderPosition {
@@ -98,15 +92,14 @@ public class Shoulder extends SubsystemBase {
       feedForwardMult = 1,
       initiateDownwardCounts = 0;
 
-  ArmExtendedCheck armExtendedCheck;
-  ShoulderFeedForwardMultiplier feedForwardMultCheck;
+  BooleanSupplier armExtendedCheck;
+  DoubleSupplier feedForwardMultSupplier;
 
   private SendableChooser<ControlMode> controlModeChooser;
   private ControlMode desiredMode, currentMode = ControlMode.ZEROING;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
-  public Shoulder(
-      ArmExtendedCheck armExtendedCheck, ShoulderFeedForwardMultiplier feedForwardMultCheck) {
+  public Shoulder(BooleanSupplier armExtendedCheck, DoubleSupplier feedForwardMultCheck) {
     this.motor =
         new CANSparkMax(RobotProperty.SHOULDER_MOTOR_ID.getInteger(), MotorType.kBrushless);
     this.motor.setInverted(RobotProperty.SHOULDER_MOTOR_INVERT.getBoolean());
@@ -160,7 +153,7 @@ public class Shoulder extends SubsystemBase {
 
     this.armExtendedCheck = armExtendedCheck;
 
-    this.feedForwardMultCheck = feedForwardMultCheck;
+    this.feedForwardMultSupplier = feedForwardMultCheck;
   }
 
   public void setMode(ControlMode mode) {
@@ -280,7 +273,7 @@ public class Shoulder extends SubsystemBase {
 
     // The forward feed is applied to ensure the motor has enough power
     // to lift the arm when close to the goal.
-    double newFeedForwardMult = this.feedForwardMultCheck.op();
+    double newFeedForwardMult = this.feedForwardMultSupplier.getAsDouble();
     double newFeedForward = newFeedForwardMult * Constants.Shoulder.PID.kF;
     if (newFeedForwardMult != feedForwardMult) {
       this.pidController.setFF(newFeedForward);
@@ -336,7 +329,7 @@ public class Shoulder extends SubsystemBase {
       this.pidController.setReference(currentPosition, ControlType.kSmartMotion);
     }
 
-    boolean armExtended = this.armExtendedCheck != null && this.armExtendedCheck.op();
+    boolean armExtended = this.armExtendedCheck != null && this.armExtendedCheck.getAsBoolean();
 
     switch (direction) {
       case HOLD:

@@ -7,28 +7,22 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class StraightDrive extends CommandBase {
-
-  public interface SpeedGetter {
-    public double op();
-  }
-
-  public interface IsFinished {
-    public boolean op();
-  }
 
   private Drivetrain drivetrain;
   private PIDController straightDrivePID, distanceDrivePID;
 
-  private SpeedGetter speedGetter;
-  private IsFinished isFinishedCheck;
+  private DoubleSupplier speedSupplier;
+  private BooleanSupplier isFinishedSupplier;
 
   private double desiredHeading;
 
-  public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter) {
+  public StraightDrive(Drivetrain drivetrain, DoubleSupplier speedSupplier) {
     this.drivetrain = drivetrain;
-    this.speedGetter = speedGetter;
+    this.speedSupplier = speedSupplier;
 
     // Straight drive uses a PID to determine the 'best' turn rotation
     // needed to get to the desired heading, and this initializes the PID
@@ -40,9 +34,10 @@ public class StraightDrive extends CommandBase {
     distanceDrivePID.enableContinuousInput(-.4, .4);
   }
 
-  public StraightDrive(Drivetrain drivetrain, SpeedGetter speedGetter, IsFinished isFinishedCheck) {
-    this(drivetrain, speedGetter);
-    this.isFinishedCheck = isFinishedCheck;
+  public StraightDrive(
+      Drivetrain drivetrain, DoubleSupplier speedSupplier, BooleanSupplier isFinishedSupplier) {
+    this(drivetrain, speedSupplier);
+    this.isFinishedSupplier = isFinishedSupplier;
   }
 
   @Override
@@ -53,7 +48,7 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public void execute() {
-    double speed = this.speedGetter.op();
+    double speed = this.speedSupplier.getAsDouble();
 
     // Determine a value from the PID controller between the current heading (-180, 180)
     // and the desired heading.
@@ -76,7 +71,7 @@ public class StraightDrive extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return isFinishedCheck != null && this.isFinishedCheck.op();
+    return isFinishedSupplier != null && this.isFinishedSupplier.getAsBoolean();
   }
 
   public double getDistance() {
